@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add *)",
+      "Bash(pnpm build *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm remove *)",
+      "Bash(pnpm format *)",
+      "Bash(pnpm format:check)",
+      "Bash(grep -v \"^$\")"
+    ]
+  }
+}
