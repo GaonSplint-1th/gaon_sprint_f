@@ -187,3 +187,146 @@ reset, 폰트, 기본 색상 등 전역 스타일은 [`src/styles/global.css.ts`
 - `index.ts` — 배럴 export
 
 타입은 `src/types/<도메인>.interface.ts`에 정의하고 `src/types/index.ts`에서 export 합니다.
+
+## 협업 방식 (Git Flow)
+
+> 여러 명이 같은 저장소에서 충돌 없이 개발하기 위한 규칙입니다.
+> **Git이 처음이어도 아래 순서만 그대로 따라 하면 됩니다.**
+
+### 브랜치 종류
+
+| 브랜치 | 역할 | 설명 |
+| --- | --- | --- |
+| `master` | 배포/최종본 | 항상 정상 동작하는 안정 버전. **여기에 직접 push 하지 않는다.** |
+| `develop` | 개발 통합 | 기능들이 모이는 브랜치. 모든 작업은 여기서 시작해 여기로 합쳐진다. |
+| `feature/*` | 기능 개발 | 개인이 기능 하나를 만드는 브랜치. 작업이 끝나면 `develop`으로 PR. |
+
+```
+master  ──●───────────────────●──   (배포 시점만 합침)
+           \                 /
+develop ────●───●───────●───●─────   (개발 통합)
+                 \     /
+feature/login    ●───●               (각자 기능 개발)
+```
+
+### 브랜치 이름 규칙
+
+`종류/작업내용` 형태로 짓는다. (영어 소문자 + 하이픈)
+
+- `feature/login` — 로그인 기능
+- `feature/ingredient-list` — 식재료 목록
+- `fix/header-color` — 헤더 색상 버그 수정
+
+### 최초 1회 준비 (develop 브랜치 만들기)
+
+`develop`이 아직 없다면 팀에서 **한 명만** 아래를 실행한다.
+
+```bash
+git checkout master
+git pull origin master
+git checkout -b develop
+git push -u origin develop
+```
+
+이후 나머지 팀원은 저장소를 클론한 뒤 `develop`을 받아온다.
+
+```bash
+git checkout develop
+git pull origin develop
+```
+
+### 기능 개발 순서 (매번 반복)
+
+**1. 최신 develop을 받는다** — 작업 시작 전 항상 최신 상태로 맞춘다.
+
+```bash
+git checkout develop
+git pull origin develop
+```
+
+**2. 내 작업용 feature 브랜치를 만든다.**
+
+```bash
+git checkout -b feature/login
+```
+
+**3. 코드를 작성하고 커밋한다** — 의미 있는 단위로 나눠서 커밋한다.
+
+```bash
+git add .
+git commit -m "feat: 로그인 폼 UI 구현"
+```
+
+**4. 원격에 올린다** — 처음 올릴 때는 `-u` 를 붙인다.
+
+```bash
+git push -u origin feature/login
+```
+
+**5. GitHub에서 Pull Request(PR)를 만든다.**
+- GitHub 저장소에 들어가면 "Compare & pull request" 버튼이 뜬다.
+- **base**(합쳐질 곳)를 `develop`, **compare**(내 브랜치)를 `feature/login`으로 설정한다.
+- PR 템플릿에 맞춰 작업 내용을 작성하고 생성한다.
+
+**6. 팀원이 코드 리뷰를 한다.**
+- 리뷰어는 코드를 확인하고 코멘트를 남긴다.
+- 수정 요청이 있으면 같은 브랜치에서 다시 커밋 → push 하면 PR에 자동 반영된다.
+- **최소 1명 이상 Approve** 후 머지하는 것을 규칙으로 한다.
+
+**7. PR을 develop에 머지한다.**
+- GitHub에서 "Merge pull request" 클릭. (머지 후 브랜치 삭제 권장)
+
+**8. 로컬을 정리한다** — 다음 작업을 위해 develop을 다시 최신화한다.
+
+```bash
+git checkout develop
+git pull origin develop
+git branch -d feature/login
+```
+
+→ 이후 새 기능은 다시 **1번부터** 반복한다.
+
+### 충돌(conflict)이 났을 때
+
+PR에서 "This branch has conflicts"가 뜨면, 내 브랜치에 최신 develop을 먼저 합친 뒤 충돌을 해결한다.
+
+```bash
+git checkout feature/login
+git pull origin develop
+```
+
+- 충돌난 파일을 열면 `<<<<<<<`, `=======`, `>>>>>>>` 표시가 있다.
+- 남길 코드만 남기고 표시들을 지운 뒤 저장한다.
+- 해결 후 다시 커밋 & push 한다.
+
+```bash
+git add .
+git commit -m "fix: develop 병합 충돌 해결"
+git push
+```
+
+### 커밋 메시지 규칙
+
+`타입: 설명` 형식으로 작성한다.
+
+| 타입 | 사용 시점 |
+| --- | --- |
+| `feat` | 새 기능 추가 |
+| `fix` | 버그 수정 |
+| `style` | 코드 포맷·스타일 (기능 변화 없음) |
+| `refactor` | 리팩터링 (기능 변화 없음) |
+| `chore` | 설정·빌드·기타 잡일 |
+| `docs` | 문서 수정 |
+
+예) `feat: 식재료 목록 페이지 추가`
+
+### 한눈에 보는 요약
+
+```bash
+git checkout develop && git pull origin develop   # 1. 최신 develop
+git checkout -b feature/기능이름                    # 2. 브랜치 생성
+# ... 작업 ...
+git add . && git commit -m "feat: 작업 내용"        # 3. 커밋
+git push -u origin feature/기능이름                 # 4. 푸시
+# 5. GitHub에서 PR 생성 (base: develop) → 6. 리뷰 → 7. 머지
+```
