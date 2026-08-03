@@ -1,9 +1,6 @@
 import { globalStyle, globalFontFace } from '@vanilla-extract/css';
 import theme from './theme';
 
-/**
- * Pretendard 웹폰트 (CDN). 원하면 로컬 폰트로 교체.
- */
 export const pretendard = 'Pretendard';
 
 globalFontFace(pretendard, {
@@ -13,7 +10,6 @@ globalFontFace(pretendard, {
   fontDisplay: 'swap',
 });
 
-/* ---------- reset ---------- */
 globalStyle('*, *::before, *::after', {
   margin: 0,
   padding: 0,
@@ -31,7 +27,7 @@ globalStyle('html', {
 
 globalStyle('body', {
   fontFamily: `${pretendard}, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', sans-serif`,
-  color: theme.text,
+  color: theme.textPrimary,
   backgroundColor: theme.background,
   WebkitFontSmoothing: 'antialiased',
   MozOsxFontSmoothing: 'grayscale',

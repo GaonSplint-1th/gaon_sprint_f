@@ -1,36 +1,38 @@
 import type { CSSProperties } from '@vanilla-extract/css';
 
 /**
- * 폰트 프리셋 생성기.
- * size 단위는 rem, lineHeight 단위는 % 이다.
+ * 타이포그래피 토큰 (Pretendard).
+ * 크기는 px 스펙값을 rem(16px 기준)으로 변환해 사용한다. lineHeight 단위는 %.
+ * 영/한 폰트는 구분하지 않는다.
+ *
+ * Title  : 화면/섹션/카드 제목
+ * Body   : 본문
+ * Label  : 버튼
+ * Caption: 조건문·도움말
  */
+const REM_BASE = 16;
+
 const fontGenerator = (
   weight: number,
-  size: number,
+  sizePx: number,
   lineHeight: number,
 ): CSSProperties => ({
   fontWeight: weight,
-  fontSize: `${size}rem`,
+  fontSize: `${sizePx / REM_BASE}rem`,
   lineHeight: `${lineHeight}%`,
 });
 
 const font = {
-  H1: fontGenerator(700, 2.25, 140),
-  H2: fontGenerator(700, 1.75, 140),
-  H3: fontGenerator(600, 1.5, 140),
-  H4: fontGenerator(600, 1.25, 140),
-  H5: fontGenerator(600, 1.125, 140),
-  H6: fontGenerator(600, 1, 140),
+  titleLarge: fontGenerator(700, 32, 140), // 화면 제목
+  titleMedium: fontGenerator(700, 28, 140), // 섹션 제목
+  titleSmall: fontGenerator(600, 24, 140), // 카드/메뉴 등 제목
 
-  p1: fontGenerator(400, 1.125, 160),
-  p2: fontGenerator(400, 1, 160),
-  p3: fontGenerator(400, 0.875, 160),
-  p4: fontGenerator(400, 0.75, 160),
+  bodyLarge: fontGenerator(400, 24, 160), // 주요 본문
+  bodySmall: fontGenerator(400, 20, 160), // 보조 본문
 
-  btn1: fontGenerator(500, 1.125, 130),
-  btn2: fontGenerator(500, 1, 130),
-  btn3: fontGenerator(500, 0.875, 130),
-  btnBold: fontGenerator(700, 0.875, 130),
+  labelMedium: fontGenerator(600, 20, 130), // 버튼
+
+  caption: fontGenerator(500, 16, 140), // 조건문·도움말
 } as const;
 
 export default font;

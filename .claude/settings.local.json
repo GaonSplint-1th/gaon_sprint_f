@@ -7,7 +7,12 @@
       "Bash(pnpm remove *)",
       "Bash(pnpm format *)",
       "Bash(pnpm format:check)",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(perl -pi -e ' *)",
+      "Bash(grep -vE \"unchanged|^>|^$\")",
+      "Read(//Users/hongje/Downloads/**)",
+      "Bash(qlmanage -t -s 1600 -o /private/tmp/claude-501/-Users-hongje-Documents-Project-UOU------vacation-project/c0b6aaeb-f911-4d28-a1b2-ecc78c082edb/scratchpad Typography.svg)",
+      "Bash(python3 measure.py)"
     ]
   }
 }

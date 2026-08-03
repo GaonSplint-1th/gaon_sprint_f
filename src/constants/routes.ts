@@ -3,5 +3,4 @@
  */
 export const ROUTES = {
   HOME: '/',
-  INGREDIENTS: '/ingredients',
 } as const;

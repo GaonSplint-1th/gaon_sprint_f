@@ -8,24 +8,24 @@ export const header = style([
   {
     height: '64px',
     padding: '0 24px',
-    borderBottom: `1px solid ${theme.border}`,
-    backgroundColor: theme.white,
+    borderBottom: `1px solid ${theme.outline}`,
+    backgroundColor: theme.surface,
     position: 'sticky',
     top: 0,
     zIndex: 10,
   },
 ]);
 
-export const logo = style([font.H5, { color: theme.primary }]);
+export const logo = style([font.titleSmall, { color: theme.primary }]);
 
 export const nav = style([flex.VERTICAL, { gap: '20px' }]);
 
 export const navLink = style([
-  font.btn3,
+  font.labelMedium,
   {
-    color: theme.subText,
+    color: theme.textSecondary,
     transition: 'color 0.15s',
-    ':hover': { color: theme.text },
+    ':hover': { color: theme.textPrimary },
   },
 ]);
 

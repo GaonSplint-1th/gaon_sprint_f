@@ -2,10 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { ROUTES } from '@/constants';
 import * as s from './style.css';
 
-const NAV_ITEMS = [
-  { to: ROUTES.HOME, label: '홈', end: true },
-  { to: ROUTES.INGREDIENTS, label: '식재료 구매', end: false },
-];
+const NAV_ITEMS = [{ to: ROUTES.HOME, label: '홈', end: true }];
 
 const RootLayout = () => {
   return (
