@@ -13,7 +13,8 @@ export const screen = style([
     minHeight: '100vh',
     marginInline: 'auto',
     paddingTop: '44px',
-    paddingBottom: `${CTA_HEIGHT + 64}px`, // 하단 고정 CTA 영역 확보
+    // 하단 고정 CTA + 그라디언트 영역 확보 (safe area 포함)
+    paddingBottom: `calc(${CTA_HEIGHT + 64}px + env(safe-area-inset-bottom))`,
     backgroundColor: theme.background,
   },
 ]);
@@ -154,8 +155,6 @@ export const chips = style([
   { gap: `${spacing.sm} ${spacing.md}`, flexWrap: 'wrap' },
 ]);
 
-export const chipsEmpty = style([font.caption, { color: theme.textSecondary }]);
-
 export const chip = style([
   flex.VERTICAL,
   font.caption,
@@ -173,12 +172,27 @@ export const chipRemove = style([
   { width: '16px', height: '16px', flex: 'none', color: theme.neutral[50] },
 ]);
 
+/* ── 하단 그라디언트 (elevation 대신 콘텐츠를 배경색으로 자연스럽게 페이드) ── */
+// 그라디언트 stop (위→아래): #FFFFFF 0%(투명) → #F6F6F6 25%(불투명) → #F6F6F6 100%. 높이 112
+export const ctaGradient = style({
+  position: 'fixed',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  bottom: 0,
+  width: `min(${layout.frame.width}, 100%)`,
+  height: '112px',
+  background: `linear-gradient(to top, ${theme.background} 0%, ${theme.background} 75%, rgba(255, 255, 255, 0) 100%)`,
+  pointerEvents: 'none',
+  zIndex: 25,
+});
+
 /* ── 하단 고정 CTA ── */
 export const ctaDock = style({
   position: 'fixed',
   left: '50%',
   transform: 'translateX(-50%)',
-  bottom: '24px',
+  // safe area(홈 인디케이터)만큼 띄움 — 기기마다 env 값이 자동 적용
+  bottom: 'calc(24px + env(safe-area-inset-bottom))',
   width: 'min(361px, calc(100% - 32px))',
   zIndex: 30,
 });
