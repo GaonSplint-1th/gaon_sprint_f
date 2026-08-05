@@ -28,6 +28,9 @@ export const appBar = style([
     zIndex: 20,
     gap: spacing.sm,
     height: '44px',
+    // 좌우 16 안쪽 (16~377, 폭 361) 둥근 카드
+    marginInline: spacing.md,
+    borderRadius: '8px',
     paddingInline: spacing.md,
     backgroundColor: theme.surface,
   },
@@ -36,9 +39,22 @@ export const appBar = style([
 export const backButton = style([
   flex.CENTER,
   {
+    position: 'relative',
     width: '24px',
     height: '24px',
     color: theme.textPrimary,
+    // 아이콘 24×24, 클릭 범위 44×44 (Material Design 3 터치 타깃)
+    selectors: {
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        width: '44px',
+        height: '44px',
+        transform: 'translate(-50%, -50%)',
+      },
+    },
   },
 ]);
 
@@ -59,7 +75,7 @@ export const lead = style([
 ]);
 
 /* ── 검색 + 자동완성 (입력창 + 구분선 + 목록이 하나의 카드) ── */
-export const search = style({ position: 'relative', height: '48px' });
+export const search = style({ position: 'relative', height: '44px' });
 
 // 입력창과 목록을 감싸는 단일 카드. 열리면 아래로 확장되며 콘텐츠 위에 겹친다.
 export const searchCard = style({
@@ -78,7 +94,8 @@ export const searchCardOpen = style({ boxShadow: elevation[3] });
 
 export const searchField = style([
   flex.VERTICAL,
-  { gap: spacing.sm, height: '48px', paddingInline: spacing.sm },
+  // 카드 테두리 1px×2 포함 총 높이 44 (앱바와 동일)
+  { gap: spacing.sm, height: '42px', paddingInline: spacing.sm },
 ]);
 
 export const searchInput = style([
@@ -169,7 +186,25 @@ export const chip = style([
 
 export const chipRemove = style([
   flex.CENTER,
-  { width: '16px', height: '16px', flex: 'none', color: theme.neutral[50] },
+  {
+    position: 'relative',
+    width: '16px',
+    height: '16px',
+    flex: 'none',
+    color: theme.neutral[50],
+    // 클릭 범위 44×44 (아이콘 16×16 유지)
+    selectors: {
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        width: '44px',
+        height: '44px',
+        transform: 'translate(-50%, -50%)',
+      },
+    },
+  },
 ]);
 
 /* ── 하단 그라디언트 (elevation 대신 콘텐츠를 배경색으로 자연스럽게 페이드) ── */
