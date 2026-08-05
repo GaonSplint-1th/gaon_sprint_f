@@ -172,9 +172,7 @@ const IngredientRegisterPage = () => {
             return (
               <div className={s.category} key={c.id}>
                 <h2 className={s.categoryLabel}>{c.label}</h2>
-                {items.length === 0 ? (
-                  <p className={s.chipsEmpty}>등록된 식재료가 없어요</p>
-                ) : (
+                {items.length > 0 && (
                   <div className={s.chips}>
                     {items.map((it) => (
                       <span className={s.chip} key={it.name}>
@@ -197,6 +195,7 @@ const IngredientRegisterPage = () => {
         </section>
       </div>
 
+      <div className={s.ctaGradient} aria-hidden />
       <div className={s.ctaDock}>
         <button
           className={s.cta}
