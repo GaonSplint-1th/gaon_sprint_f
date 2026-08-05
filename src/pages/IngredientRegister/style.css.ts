@@ -3,6 +3,21 @@ import { flex, font, theme, spacing, elevation, layout } from '@/styles';
 
 const CTA_HEIGHT = 48;
 
+const touchTarget = style({
+  position: 'relative',
+  selectors: {
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      width: '44px',
+      height: '44px',
+      transform: 'translate(-50%, -50%)',
+    },
+  },
+});
+
 /* ── 화면 셸 (모바일 393px) ── */
 export const screen = style([
   flex.COLUMN_FLEX,
@@ -37,24 +52,13 @@ export const appBar = style([
 ]);
 
 export const backButton = style([
+  touchTarget,
   flex.CENTER,
   {
-    position: 'relative',
     width: '24px',
     height: '24px',
     color: theme.textPrimary,
     // 아이콘 24×24, 클릭 범위 44×44 (Material Design 3 터치 타깃)
-    selectors: {
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        width: '44px',
-        height: '44px',
-        transform: 'translate(-50%, -50%)',
-      },
-    },
   },
 ]);
 
@@ -185,25 +189,14 @@ export const chip = style([
 ]);
 
 export const chipRemove = style([
+  touchTarget,
   flex.CENTER,
   {
-    position: 'relative',
     width: '16px',
     height: '16px',
     flex: 'none',
     color: theme.neutral[50],
     // 클릭 범위 44×44 (아이콘 16×16 유지)
-    selectors: {
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        width: '44px',
-        height: '44px',
-        transform: 'translate(-50%, -50%)',
-      },
-    },
   },
 ]);
 

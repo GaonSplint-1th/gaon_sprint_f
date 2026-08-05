@@ -1,14 +1,4 @@
-/** 식재료 카테고리 */
-export interface Category {
-  id: string;
-  label: string;
-}
-
-/** 자동완성 사전 항목  */
-export interface DictionaryItem {
-  name: string;
-  category: string;
-}
+import type { Category, DictionaryItem } from '@/types';
 
 export const CATEGORIES: Category[] = [
   { id: 'veg', label: '채소 · 과일' },

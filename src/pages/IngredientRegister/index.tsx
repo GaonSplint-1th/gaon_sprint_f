@@ -1,24 +1,30 @@
-import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, CloseIcon, SearchIcon } from '@/components/icons';
-import { CATEGORIES, DICTIONARY } from './mock';
+import type { DictionaryItem } from '@/types';
+import { CATEGORIES, DICTIONARY } from '@/services/ingredient';
 import * as s from './style.css';
 
-interface SelectedItem {
-  name: string;
-  category: string;
-}
-
 const MAX_SUGGESTIONS = 8;
+const SUGGESTION_LIST_ID = 'ingredient-suggestion-list';
+
+const getSuggestionId = (index: number) => `ingredient-suggestion-${index}`;
 
 const IngredientRegisterPage = () => {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const activeOptionRef = useRef<HTMLButtonElement>(null);
 
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [selected, setSelected] = useState<SelectedItem[]>([]);
+  const [selected, setSelected] = useState<DictionaryItem[]>([]);
 
   const isSelected = (name: string) => selected.some((it) => it.name === name);
 
@@ -33,6 +39,13 @@ const IngredientRegisterPage = () => {
   }, [query]);
 
   const showSuggest = open && query.trim().length > 0;
+  const activeDescendantId =
+    showSuggest && activeIndex >= 0 ? getSuggestionId(activeIndex) : undefined;
+
+  useEffect(() => {
+    if (!showSuggest || activeIndex < 0) return;
+    activeOptionRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex, showSuggest]);
 
   const add = (name: string) => {
     const entry = DICTIONARY.find((d) => d.name === name);
@@ -56,11 +69,31 @@ const IngredientRegisterPage = () => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       const dir = e.key === 'ArrowDown' ? 1 : -1;
-      setActiveIndex((prev) => (prev + dir + matches.length) % matches.length);
+      const navigableIndices = matches.reduce<number[]>((indices, match, i) => {
+        if (!isSelected(match.name)) indices.push(i);
+        return indices;
+      }, []);
+
+      setActiveIndex((prev) => {
+        if (navigableIndices.length === 0) return -1;
+
+        const currentPosition = navigableIndices.indexOf(prev);
+        const nextPosition =
+          currentPosition === -1
+            ? dir === 1
+              ? 0
+              : navigableIndices.length - 1
+            : (currentPosition + dir + navigableIndices.length) %
+              navigableIndices.length;
+
+        return navigableIndices[nextPosition];
+      });
     } else if (e.key === 'Enter') {
       e.preventDefault();
       // 직접 입력값이 아니라 선택된 자동완성 항목만 등록
-      if (activeIndex >= 0) add(matches[activeIndex].name);
+      if (activeIndex >= 0 && !isSelected(matches[activeIndex].name)) {
+        add(matches[activeIndex].name);
+      }
     } else if (e.key === 'Escape') {
       setOpen(false);
       setActiveIndex(-1);
@@ -115,6 +148,10 @@ const IngredientRegisterPage = () => {
                   onKeyDown={handleKeyDown}
                   placeholder="식재료를 검색해 주세요"
                   aria-label="식재료 검색"
+                  role="combobox"
+                  aria-expanded={showSuggest}
+                  aria-controls={SUGGESTION_LIST_ID}
+                  aria-activedescendant={activeDescendantId}
                 />
                 <span className={s.searchIcon} aria-hidden>
                   <SearchIcon />
@@ -130,20 +167,30 @@ const IngredientRegisterPage = () => {
                       ‘{query.trim()}’ 검색 결과가 없어요
                     </p>
                   ) : (
-                    <ul className={s.suggestList}>
+                    <ul
+                      className={s.suggestList}
+                      id={SUGGESTION_LIST_ID}
+                      role="listbox"
+                    >
                       {matches.map((m, i) => {
                         const added = isSelected(m.name);
+                        const active = i === activeIndex;
+                        const itemClassName = [
+                          s.suggestItem,
+                          added && s.suggestItemAdded,
+                          active && s.suggestItemActive,
+                        ]
+                          .filter(Boolean)
+                          .join(' ');
                         return (
                           <li key={m.name}>
                             <button
+                              ref={active ? activeOptionRef : undefined}
                               type="button"
-                              className={
-                                added
-                                  ? `${s.suggestItem} ${s.suggestItemAdded}`
-                                  : i === activeIndex
-                                    ? `${s.suggestItem} ${s.suggestItemActive}`
-                                    : s.suggestItem
-                              }
+                              id={getSuggestionId(i)}
+                              role="option"
+                              aria-selected={active}
+                              className={itemClassName}
                               // mousedown 으로 등록해 input blur 보다 먼저 처리
                               onMouseDown={(e) => e.preventDefault()}
                               onClick={() => add(m.name)}
