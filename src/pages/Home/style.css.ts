@@ -1,14 +1,15 @@
 import { style } from '@vanilla-extract/css';
-import { flex, font, spacing, theme } from '@/styles';
+import { flex, font, layout, spacing, theme } from '@/styles';
 
 export const screen = style([
   flex.COLUMN_FLEX,
   {
+    // 식재료 화면과 동일한 프레임(393) / 좌우마진 16
     width: '100%',
-    maxWidth: '460px',
+    maxWidth: layout.frame.width,
     minHeight: '100vh',
     marginInline: 'auto',
-    padding: '59px 20px 32px',
+    padding: `44px ${spacing.md} 40px`, // Figma body padding
     backgroundColor: theme.background,
   },
 ]);
@@ -16,17 +17,14 @@ export const screen = style([
 export const pageTitle = style([
   flex.BETWEEN,
   {
-    minHeight: '52px',
+    minHeight: '44px',
     paddingInline: spacing.md,
-    borderRadius: '10px',
+    borderRadius: '8px',
     backgroundColor: theme.surface,
   },
 ]);
 
-export const title = style([
-  font.titleSmall,
-  { color: theme.textPrimary },
-]);
+export const title = style([font.titleSmall, { color: theme.textPrimary }]);
 
 export const skipButton = style([
   font.caption,
@@ -38,9 +36,9 @@ export const skipButton = style([
 ]);
 
 export const summary = style({
-  marginTop: '18px',
-  padding: '14px 20px 13px',
-  borderRadius: '10px',
+  marginTop: spacing.md, // Figma .screen gap 16
+  padding: '10px 16px 14px', // Figma .summary
+  borderRadius: '8px',
   backgroundColor: theme.primaryScale[600],
   color: theme.onPrimary,
 });
@@ -50,10 +48,10 @@ export const date = style(font.titleSmall);
 export const summaryDetails = style([
   flex.BETWEEN,
   font.caption,
-  { marginTop: '2px' },
+  { marginTop: '12px' }, // Figma .summary__meta
 ]);
 
-export const mealSection = style({ marginTop: '26px' });
+export const mealSection = style({ marginTop: '24px' }); // gap 16 + section-title 여백 8
 
 export const sectionTitle = style([
   font.labelMedium,
@@ -62,16 +60,15 @@ export const sectionTitle = style([
 
 export const mealList = style([
   flex.COLUMN_FLEX,
-  { gap: '11px', marginTop: '20px' },
+  { gap: spacing.md, marginTop: '12px' }, // 카드 간격 16, 제목→목록 12
 ]);
 
 export const mealCard = style([
   flex.BETWEEN,
   {
-    minHeight: '136px',
-    gap: spacing.sm,
-    padding: spacing.sm,
-    borderRadius: '10px',
+    gap: spacing.sm, // Figma .meal gap 8
+    padding: spacing.sm, // Figma .meal padding 8
+    borderRadius: '8px',
     backgroundColor: theme.surface,
   },
 ]);
@@ -81,29 +78,27 @@ export const mealInfo = style([
   {
     alignItems: 'flex-start',
     minWidth: 0,
+    minHeight: '101px', // Figma .meal__info
     flex: 1,
   },
 ]);
 
-export const mealTime = style([
-  font.titleSmall,
-  { color: theme.textPrimary },
-]);
+export const mealTime = style([font.titleSmall, { color: theme.textPrimary }]);
 
 export const mealName = style([
   font.caption,
-  { marginTop: '8px', color: theme.textPrimary },
+  { marginTop: '8px', color: theme.textPrimary }, // Figma .meal__name
 ]);
 
 export const mealDetail = style([
   font.caption,
-  { marginTop: '5px', fontWeight: 600, color: theme.textPrimary },
+  { marginTop: '8px', fontWeight: 600, color: theme.textPrimary }, // Figma .meal__detail
 ]);
 
 export const recipeButton = style([
   font.caption,
   {
-    marginTop: '6px',
+    marginTop: 'auto', // Figma .meal__link margin-top: auto
     color: theme.link,
     fontWeight: 600,
     whiteSpace: 'nowrap',
@@ -114,10 +109,9 @@ export const recipeButton = style([
 export const recipePreview = style([
   flex.CENTER,
   {
-    width: '50%',
-    minWidth: 0,
+    flex: '0 0 178px', // Figma grid 1fr 178px
     alignSelf: 'stretch',
-    borderRadius: '10px',
+    borderRadius: '8px',
     backgroundColor: theme.neutral[200],
   },
 ]);
