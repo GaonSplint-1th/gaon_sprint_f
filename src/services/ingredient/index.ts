@@ -1,4 +1,4 @@
-export { CATEGORIES } from './ingredient.mock';
+export { CATEGORIES, DICTIONARY } from './ingredient.mock';
 
 export {
   searchIngredients,

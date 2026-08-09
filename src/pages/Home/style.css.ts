@@ -116,20 +116,6 @@ export const recipePreview = style([
   },
 ]);
 
-export const stateBox = style([
-  flex.CENTER,
-  {
-    minHeight: '160px',
-    marginTop: '12px',
-    padding: spacing.md,
-    borderRadius: '8px',
-    backgroundColor: theme.surface,
-    textAlign: 'center',
-  },
-]);
-
-export const stateText = style([font.caption, { color: theme.textSecondary }]);
-
 export const recipeIcon = style({
   position: 'relative',
   width: '25px',
