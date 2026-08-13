@@ -1,6 +1,10 @@
 import type { CSSProperties } from '@vanilla-extract/css';
 
-const fontGenerator = (weight: number, sizePx: number, lineHeightPx: number): CSSProperties => ({
+const fontGenerator = (
+  weight: number,
+  sizePx: number,
+  lineHeightPx: number,
+): CSSProperties => ({
   fontWeight: weight,
   fontSize: `${sizePx / 16}rem`,
   lineHeight: `${lineHeightPx / 16}rem`,
