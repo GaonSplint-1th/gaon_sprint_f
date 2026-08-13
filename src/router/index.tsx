@@ -9,7 +9,12 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
     element: <RootLayout />,
-    children: [{ index: true, element: <HomePage /> }],
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'recommend', element: <HomePage /> },
+      { path: 'recommend/loading', element: <HomePage /> },
+      { path: 'edit', element: <HomePage /> },
+    ],
   },
   // 자체 앱바를 가진 모바일 전용 화면 (RootLayout 미적용)
   { path: ROUTES.INGREDIENT_REGISTER, element: <IngredientRegisterPage /> },
