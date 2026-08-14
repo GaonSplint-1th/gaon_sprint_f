@@ -1,13 +1,18 @@
 import { style } from '@vanilla-extract/css';
-import { flex, font, theme, screen } from '@/styles';
+import { flex, font, theme, layout } from '@/styles';
 
-export const wrapper = style([flex.COLUMN_FLEX, { minHeight: '100vh' }]);
+export const wrapper = style([
+  flex.COLUMN_FLEX,
+  { alignItems: 'center', minHeight: '100vh', backgroundColor: theme.background },
+]);
 
 export const header = style([
   flex.BETWEEN,
   {
+    width: '100%',
+    maxWidth: layout.frame.width,
     height: '64px',
-    padding: '0 24px',
+    padding: `0 ${layout.sideMargin}`,
     borderBottom: `1px solid ${theme.outline}`,
     backgroundColor: theme.surface,
     position: 'sticky',
@@ -36,7 +41,7 @@ export const navLinkActive = style({
 export const main = style({
   flex: 1,
   width: '100%',
-  maxWidth: screen.desktop,
+  maxWidth: layout.frame.width,
   margin: '0 auto',
-  padding: '32px 24px',
+  padding: `24px ${layout.sideMargin}`,
 });

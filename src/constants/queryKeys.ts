@@ -10,4 +10,8 @@
  *   },
  * } as const;
  */
-export const queryKeys = {} as const;
+export const queryKeys = {
+  recipe: {
+    detail: (id: string) => ['recipe', id] as const,
+  },
+} as const;
