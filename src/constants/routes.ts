@@ -4,4 +4,5 @@
 export const ROUTES = {
   HOME: '/',
   INGREDIENT_REGISTER: '/ingredient-register',
+  ONBOARDING: '/onboarding'
 } as const;
