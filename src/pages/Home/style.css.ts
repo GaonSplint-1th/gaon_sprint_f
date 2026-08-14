@@ -1,4 +1,4 @@
-import { style, globalStyle } from '@vanilla-extract/css';
+import { style } from '@vanilla-extract/css';
 import { flex, font, layout, spacing, theme } from '@/styles';
 
 export const screen = style({
@@ -170,6 +170,17 @@ export const placeholder = style([
   },
 ]);
 export const ingredients = style({ marginTop: '10px', fontSize: '14px' });
+export const ingredientIcon = style({
+  display: 'inline-grid',
+  placeItems: 'center',
+  width: '18px',
+  height: '18px',
+  marginRight: '6px',
+  borderRadius: '3px',
+  background: theme.primaryScale[600],
+  color: theme.onPrimary,
+  fontSize: '11px',
+});
 export const previewButton = style({
   display: 'block',
   margin: '12px 0 0 auto',
@@ -187,6 +198,9 @@ export const editScroll = style({
   overflowY: 'auto',
   marginTop: spacing.md,
   scrollbarWidth: 'none',
+  selectors: {
+    '&::-webkit-scrollbar': { display: 'none' },
+  },
 });
 export const swipeMeals = style({
   display: 'flex',
@@ -281,37 +295,32 @@ export const skeletonButton = style({
   borderRadius: '8px',
   background: theme.neutral[200],
 });
-globalStyle(`${skeletonTitle} i`, {
+export const skeletonCircle = style({
   width: '24px',
   height: '24px',
   borderRadius: '50%',
   background: theme.neutral[200],
 });
-globalStyle(`${skeletonTitle} b`, {
+export const skeletonTitleLine = style({
   width: '136px',
   height: '24px',
   background: theme.neutral[200],
 });
-globalStyle(`${skeletonCard} i`, {
+export const skeletonImage = style({
   gridColumn: '1 / -1',
   width: '100%',
   height: '72px',
-  background: theme.neutral[200],
   borderRadius: '8px',
+  background: theme.neutral[200],
 });
-globalStyle(`${skeletonCard} div`, {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing.sm,
-});
-globalStyle(`${skeletonCard} b`, {
+export const skeletonLine = style({
   height: '12px',
-  background: theme.neutral[200],
   borderRadius: '8px',
+  background: theme.neutral[200],
 });
-globalStyle(`${skeletonCard} em`, {
+export const skeletonSideImage = style({
   width: '112px',
   height: '72px',
-  background: theme.neutral[200],
   borderRadius: '8px',
+  background: theme.neutral[200],
 });
