@@ -21,21 +21,37 @@ export const image = style({
   borderRadius: '8px',
 });
 
+export const imageEmpty = style([flex.COLUMN_CENTER, { gap: '8px' }]);
+
 // DESIGN.md 3장 caption (12/16, SemiBold)
-export const imagePlaceholderText = style({
+export const imageEmptyText = style({
   fontSize: '12px',
   fontWeight: 600,
   lineHeight: '16px',
-  color: theme.textSecondary,
+  color: theme.textTertiary,
 });
 
 export const header = style([
   flex.BETWEEN,
-  { width: '100%', borderBottom: `1px solid ${theme.outline}`, paddingBottom: '16px' },
+  {
+    alignItems: 'flex-start',
+    gap: '8px',
+    width: '100%',
+    borderBottom: `1px solid ${theme.outline}`,
+    paddingBottom: '16px',
+  },
 ]);
 
 // DESIGN.md 3장 title-small (18/24, SemiBold)
 export const name = style({
+  flex: 1,
+  minWidth: 0,
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  wordBreak: 'keep-all',
+  overflowWrap: 'break-word',
   fontSize: '18px',
   fontWeight: 600,
   lineHeight: '24px',
@@ -44,6 +60,7 @@ export const name = style({
 
 // DESIGN.md 3장 caption (12/16, SemiBold)
 export const ingredientButton = style({
+  flexShrink: 0,
   fontSize: '12px',
   fontWeight: 600,
   lineHeight: '16px',

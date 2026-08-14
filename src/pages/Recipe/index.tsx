@@ -47,7 +47,11 @@ const RecipePage = () => {
       <RecipeAppBar title="레시피" onBack={() => navigate(-1)} />
 
       <div className={s.card}>
-        <RecipeCard name={recipe.name} imageUrl={recipe.imageUrl} />
+        <RecipeCard
+          name={recipe.name}
+          imageUrl={recipe.imageUrl}
+          ingredients={recipe.ingredients}
+        />
         <CookingStepList steps={recipe.steps} />
       </div>
     </div>
