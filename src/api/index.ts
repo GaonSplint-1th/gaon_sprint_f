@@ -3,6 +3,7 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
 } from 'axios';
+import { showErrorPopup } from '@/libs/errorPopupBridge';
 
 /**
  * 공용 axios 인스턴스.
@@ -22,13 +23,24 @@ http.interceptors.request.use((config) => {
   return config;
 });
 
-/* 응답 인터셉터 — 공통 에러 로깅 */
+/*
+ * 응답 인터셉터 — 공통 에러 로깅 + 연결 자체가 안 되는 에러는 여기서 바로 팝업을 띄운다.
+ * 4xx(비즈니스 로직) 에러는 페이지마다 처리 방식이 다를 수 있어 여기서 임의로 팝업을 띄우지 않고,
+ * 호출부에서 useErrorPopup으로 필요할 때만 띄운다.
+ */
 http.interceptors.response.use(
   (res) => res,
   (error: AxiosError) => {
     if (import.meta.env.DEV) {
       console.error('[API ERROR]', error.response?.status, error.config?.url);
     }
+
+    if (!error.response) {
+      showErrorPopup({ type: 'NETWORK_ERROR' });
+    } else if (error.response.status === 503) {
+      showErrorPopup({ type: 'SERVER_UNAVAILABLE', code: error.response.status });
+    }
+
     return Promise.reject(error);
   },
 );

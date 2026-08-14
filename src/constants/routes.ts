@@ -3,4 +3,5 @@
  */
 export const ROUTES = {
   HOME: '/',
+  ERROR_CHECK: '/error-check',
 } as const;
