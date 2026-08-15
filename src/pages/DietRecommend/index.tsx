@@ -1,29 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeftIcon, CloseIcon, InfoIcon } from '@/components/icons';
 import * as s from '../Home/style.css';
 
-const Header = ({ onBack }: { onBack: () => void }) => (
-  <header className={s.pageTitle}>
-    <button
-      type="button"
-      className={s.backButton}
-      onClick={onBack}
-      aria-label="뒤로가기"
-    >
-      ‹
-    </button>
-    <h1 className={s.title}>식단 추천</h1>
-    <span className={s.infoIcon} aria-label="식단 추천 안내">
-      i
-    </span>
-  </header>
-);
-
-const Skeleton = ({ onDone }: { onDone: () => void }) => {
+const Skeleton = ({ done }: { done: () => void }) => {
   useEffect(() => {
-    const timer = window.setTimeout(onDone, 900);
+    const timer = window.setTimeout(done, 900);
     return () => window.clearTimeout(timer);
-  }, [onDone]);
+  }, [done]);
   return (
     <div
       className={s.screen}
@@ -37,16 +21,10 @@ const Skeleton = ({ onDone }: { onDone: () => void }) => {
       {[1, 2, 3].map((item) => (
         <div className={s.skeletonCard} key={item}>
           <span className={s.skeletonImage} />
-          <div>
-            <span className={s.skeletonLine} />
-            <span className={s.skeletonLine} />
-            <span className={s.skeletonLine} />
-          </div>
-          <span className={s.skeletonSideImage} />
           <span className={s.skeletonLine} />
+          <span className={s.skeletonSideImage} />
         </div>
       ))}
-      <div className={s.skeletonButton} />
     </div>
   );
 };
@@ -56,18 +34,52 @@ const DietRecommendPage = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(0);
   const [preview, setPreview] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!preview) return;
-    const close = (event: KeyboardEvent) => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const modal = modalRef.current;
+    const focusable = modal?.querySelectorAll<HTMLElement>(
+      'button, [tabindex]:not([tabindex="-1"])',
+    );
+    focusable?.[0]?.focus();
+    const keydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setPreview(false);
+      if (event.key !== 'Tab' || !focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener('keydown', close);
-    return () => window.removeEventListener('keydown', close);
+    document.addEventListener('keydown', keydown);
+    return () => {
+      document.body.style.overflow = previous;
+      document.removeEventListener('keydown', keydown);
+    };
   }, [preview]);
-  if (loading) return <Skeleton onDone={() => setLoading(false)} />;
+  if (loading) return <Skeleton done={() => setLoading(false)} />;
   return (
     <div className={s.screen}>
-      <Header onBack={() => navigate('/')} />
+      <header className={s.pageTitle}>
+        <button
+          type="button"
+          className={s.backButton}
+          onClick={() => navigate('/')}
+          aria-label="뒤로가기"
+        >
+          <ArrowLeftIcon />
+        </button>
+        <h1 className={s.title}>식단 추천</h1>
+        <span className={s.infoIcon} aria-label="식단 추천 안내">
+          <InfoIcon />
+        </span>
+      </header>
       <div className={s.recommendList}>
         {[0, 1, 2].map((item) => (
           <article
@@ -104,7 +116,6 @@ const DietRecommendPage = () => {
             <button
               type="button"
               className={s.previewButton}
-              aria-label="식단 미리보기 열기"
               onClick={(event) => {
                 event.stopPropagation();
                 setPreview(true);
@@ -125,6 +136,7 @@ const DietRecommendPage = () => {
       {preview && (
         <div className={s.modalBackdrop} onClick={() => setPreview(false)}>
           <div
+            ref={modalRef}
             className={s.previewModal}
             role="dialog"
             aria-modal="true"
@@ -138,7 +150,7 @@ const DietRecommendPage = () => {
                 aria-label="미리보기 닫기"
                 onClick={() => setPreview(false)}
               >
-                ×
+                <CloseIcon />
               </button>
             </div>
             <div className={s.modalBody}>
@@ -156,13 +168,6 @@ const DietRecommendPage = () => {
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              className={s.modalClose}
-              onClick={() => setPreview(false)}
-            >
-              닫기
-            </button>
           </div>
         </div>
       )}

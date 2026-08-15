@@ -4,7 +4,7 @@ import { flex, font, layout, spacing, theme } from '@/styles';
 export const screen = style({
   width: '100%',
   maxWidth: layout.frame.width,
-  minHeight: layout.frame.height,
+  minHeight: '100dvh',
   margin: '0 auto',
   padding: '44px 16px 40px',
   background: theme.background,
@@ -201,6 +201,30 @@ export const editScroll = style({
   selectors: {
     '&::-webkit-scrollbar': { display: 'none' },
   },
+});
+export const menuSwipe = style({
+  overflowX: 'auto',
+  maxWidth: '160px',
+  scrollbarWidth: 'none',
+  selectors: { '&::-webkit-scrollbar': { display: 'none' } },
+});
+export const menuSwipeTrack = style({
+  display: 'flex',
+  gap: spacing.sm,
+  width: 'max-content',
+});
+export const menuOption = style({
+  padding: '4px 8px',
+  border: `1px solid ${theme.neutral[200]}`,
+  borderRadius: '6px',
+  background: theme.surface,
+  fontSize: '14px',
+  whiteSpace: 'nowrap',
+});
+export const activeMenuOption = style({
+  borderColor: theme.primaryScale[600],
+  background: theme.primaryScale[600],
+  color: theme.onPrimary,
 });
 export const swipeMeals = style({
   display: 'flex',
