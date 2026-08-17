@@ -188,6 +188,49 @@ reset, 폰트, 기본 색상 등 전역 스타일은 [`src/styles/global.css.ts`
 
 타입은 `src/types/<도메인>.interface.ts`에 정의하고 `src/types/index.ts`에서 export 합니다.
 
+## 백엔드 연동 (API)
+
+`gaon-platform` 백엔드(Spring Boot)와 붙는 부분입니다. 서버는 [gaon-platform](https://github.com/GaonSplint-1th/gaon-platform)의 `make setup` 으로 띄웁니다.
+
+### 서버 주소
+
+`.env` 의 `VITE_SERVER_URL` 이 axios `baseURL` 입니다.
+
+- `http://localhost:8080` — 백엔드 컨테이너에 직접 (dev 서버 `pnpm dev` 기본값, CORS 허용됨)
+- 빈 값 — 게이트웨이(`http://localhost:8090`)를 거칠 때 상대경로로 호출 (CORS 없음)
+
+### 기기 인증 (자동)
+
+로그인/회원가입 화면이 없습니다. 앱 첫 실행 때 `SessionProvider` 가 기기별 `deviceId` 로 `POST /api/v1/auth/device` 를 호출해 계정을 만들고 토큰을 받습니다.
+
+- `src/libs/session.ts` — `deviceId`·토큰·`userId` 를 localStorage 에 보관
+- `src/api/index.ts` — 요청마다 `Authorization: Bearer` 자동 주입, 401 이면 세션을 비우고 재인증 유도
+- `src/services/auth` — `useSession()`(세션 부팅), `useUserId()`(현재 userId)
+
+유저 스코프 훅(`useUserIngredients`, `useCurrentMenu` 등)은 `userId` 를 세션에서 알아서 채웁니다. 화면에서는 `userId` 를 신경 쓰지 않고 훅만 호출하면 됩니다.
+
+```tsx
+const { data } = useUserIngredients(); // userId 자동
+const add = useAddUserIngredient();
+add.mutate({ ingredientId: 7 });
+```
+
+### 도메인별 서비스
+
+`src/services/` 아래에 명세서 기준으로 구현돼 있습니다.
+
+| 폴더 | 내용 |
+| --- | --- |
+| `auth` | 기기 인증 / 세션 |
+| `ingredient` | 식재료 검색·상세, 보유 식재료 CRUD, 식재료 요청 |
+| `menu` | 현재 식단 조회·생성·재생성, 요일/식사 수정·삭제·새로고침 |
+| `weeklyMenu` | 템플릿 목록·상세, 내 템플릿, 식단 가격 계산 |
+| `favorite` | 즐겨찾기 조회·등록·해제 |
+| `shopping` | 장보기 체크리스트 조회·추가·체크·삭제 |
+| `dish` | 요리(레시피) 목록·상세 |
+| `preference` | 선호 음식 조회·수정 |
+| `user` | 유저 단건 조회 |
+
 ## 협업 방식 (Git Flow)
 
 > 여러 명이 같은 저장소에서 충돌 없이 개발하기 위한 규칙입니다.

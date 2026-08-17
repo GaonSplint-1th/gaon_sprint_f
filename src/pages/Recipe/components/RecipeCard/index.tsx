@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { HideImage } from '@/components/icons';
-import type { Ingredient } from '@/types';
+import type { Ingredient } from '@/types/recipe.interface';
 import IngredientPopup from '../IngredientPopup';
 import * as s from './style.css';
 

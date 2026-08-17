@@ -52,7 +52,7 @@ const theme = {
   textPrimary: '#241F1F', // neutral 900
   textSecondary: '#666666', // neutral 600
   textTertiary: '#A3A3A3', // neutral 400
-  textDisabled: '#A3A3A3', // 비활성 텍스트 (스펙 표기값 neutral/50 → 흰 배경 가독성 위해 400 적용)
+  textDisabled: '#F6F6F6', // 비활성 텍스트 = neutral/50 (스펙 기준)
 } as const;
 
 export default theme;

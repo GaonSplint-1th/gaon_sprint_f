@@ -3,5 +3,7 @@
  */
 export const ROUTES = {
   HOME: '/',
+  INGREDIENT_REGISTER: '/ingredient-register',
+  ERROR_CHECK: '/error-check',
   RECIPE: '/recipe/:id',
 } as const;

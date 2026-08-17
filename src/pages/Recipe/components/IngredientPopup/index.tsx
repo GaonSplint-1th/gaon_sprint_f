@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Close } from '@/components/icons';
-import type { Ingredient } from '@/types';
+import type { Ingredient } from '@/types/recipe.interface';
 import * as s from './style.css';
 
 interface IngredientPopupProps {
