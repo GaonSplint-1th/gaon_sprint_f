@@ -87,3 +87,6 @@ export type {
   ShoppingListAddRequest,
   ShoppingListItemCheckRequest,
 } from './shopping.interface';
+
+/* 에러 팝업 */
+export type { ErrorPopupType, ErrorPopupOptions } from './errorPopup.interface';

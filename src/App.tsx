@@ -1,11 +1,14 @@
 import { RouterProvider } from 'react-router-dom';
 import QueryProvider from '@/providers/QueryProvider';
+import ErrorPopupProvider from '@/providers/ErrorPopupProvider';
 import { router } from '@/router';
 
 function App() {
   return (
     <QueryProvider>
-      <RouterProvider router={router} />
+      <ErrorPopupProvider>
+        <RouterProvider router={router} />
+      </ErrorPopupProvider>
     </QueryProvider>
   );
 }

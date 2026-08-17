@@ -3,6 +3,7 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
 } from 'axios';
+import { showErrorPopup } from '@/libs/errorPopupBridge';
 import { session } from '@/libs/session';
 import { queryClient } from '@/libs/queryClient';
 import { queryKeys } from '@/constants/queryKeys';
@@ -44,6 +45,13 @@ http.interceptors.response.use(
       // 만료/무효 토큰. 세션을 비우고 세션 쿼리를 무효화하면 재부팅 시 다시 기기 인증한다.
       session.clear();
       void queryClient.invalidateQueries({ queryKey: queryKeys.session });
+    }
+
+    // 연결 자체가 안 되는 에러/서버 점검은 전역 팝업으로 안내
+    if (!error.response) {
+      showErrorPopup({ type: 'NETWORK_ERROR' });
+    } else if (status === 503) {
+      showErrorPopup({ type: 'SERVER_UNAVAILABLE', code: status });
     }
 
     if (import.meta.env.DEV) {
