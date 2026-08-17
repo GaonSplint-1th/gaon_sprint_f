@@ -90,3 +90,12 @@ export type {
 
 /* 에러 팝업 */
 export type { ErrorPopupType, ErrorPopupOptions } from './errorPopup.interface';
+
+/* 레시피 */
+export type {
+  Recipe,
+  CookingStep,
+  DishResponse,
+  DishRecipeStepResponse,
+  DishIngredientResponse,
+} from './recipe.interface';

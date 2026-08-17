@@ -7,6 +7,10 @@ import type { DishListParams } from '@/types';
  * 팩토리 함수로 파라미터별 키를 안정적으로 생성해 캐시 무효화 범위를 예측 가능하게 한다.
  */
 export const queryKeys = {
+  /** 레시피 */
+  recipe: {
+    detail: (id: string) => ['recipe', id] as const,
+  },
   /** 기기 인증 세션. */
   session: ['session'] as const,
 
