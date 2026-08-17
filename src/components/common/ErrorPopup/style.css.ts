@@ -11,7 +11,7 @@ export const overlay = style([
   {
     position: 'fixed',
     inset: 0,
-    backgroundColor: 'rgba(36, 31, 31, 0.4)',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', // 디자인 스펙: 검정 30%
     zIndex: 999,
     padding: spacing.md,
   },
@@ -62,7 +62,6 @@ export const actions = style([
   flex.FLEX,
   {
     height: '40px',
-    margin: '0 0px 0px',
   },
 ]);
 
