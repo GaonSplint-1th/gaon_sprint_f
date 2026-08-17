@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { HideImage } from '@/components/icons';
 import type { Ingredient } from '@/types/recipe.interface';
 import IngredientPopup from '../IngredientPopup';
@@ -13,14 +13,20 @@ interface RecipeCardProps {
 const RecipeCard = ({ name, imageUrl, ingredients }: RecipeCardProps) => {
   const [isIngredientPopupOpen, setIsIngredientPopupOpen] = useState(false);
   const [isImageLoadFailed, setIsImageLoadFailed] = useState(false);
+  const [loadedImageUrl, setLoadedImageUrl] = useState(imageUrl);
 
-  useEffect(() => {
+  // imageUrl 이 바뀌면 새 이미지에 다시 로드 기회를 준다 (effect 없이 렌더 중 조정).
+  if (imageUrl !== loadedImageUrl) {
+    setLoadedImageUrl(imageUrl);
     setIsImageLoadFailed(false);
-  }, [imageUrl]);
+  }
 
   const showImage = Boolean(imageUrl) && !isImageLoadFailed;
 
-  const closeIngredientPopup = useCallback(() => setIsIngredientPopupOpen(false), []);
+  const closeIngredientPopup = useCallback(
+    () => setIsIngredientPopupOpen(false),
+    [],
+  );
 
   return (
     <div className={s.container}>
@@ -36,7 +42,9 @@ const RecipeCard = ({ name, imageUrl, ingredients }: RecipeCardProps) => {
           <div className={s.imageEmpty}>
             <HideImage size={24} />
             <p className={s.imageEmptyText}>
-              {imageUrl ? '이미지를 불러오지 못했습니다' : '등록된 이미지가 없습니다'}
+              {imageUrl
+                ? '이미지를 불러오지 못했습니다'
+                : '등록된 이미지가 없습니다'}
             </p>
           </div>
         )}
