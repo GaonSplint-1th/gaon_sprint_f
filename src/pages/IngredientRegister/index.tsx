@@ -1,14 +1,16 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, CloseIcon, SearchIcon } from '@/components/icons';
-import type { DictionaryItem } from '@/types';
-import { CATEGORIES, DICTIONARY } from '@/services/ingredient';
+import {
+  CATEGORIES,
+  useAddUserIngredient,
+  useIngredientSearch,
+  useRemoveUserIngredient,
+  useUserIngredients,
+} from '@/services/ingredient';
+import { getApiErrorMessage } from '@/api';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { toCategoryId } from '@/utils/ingredient';
 import * as s from './style.css';
 
 const MAX_SUGGESTIONS = 8;
@@ -24,19 +26,24 @@ const IngredientRegisterPage = () => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [selected, setSelected] = useState<DictionaryItem[]>([]);
 
-  const isSelected = (name: string) => selected.some((it) => it.name === name);
+  const keyword = useDebouncedValue(query.trim());
 
-  // 사전에서 검색어를 포함하는 항목 (이미 추가된 항목도 목록에 남겨 표시)
-  const matches = useMemo(() => {
-    const q = query.trim();
-    if (!q) return [];
-    return DICTIONARY.filter((d) => d.name.includes(q)).slice(
-      0,
-      MAX_SUGGESTIONS,
-    );
-  }, [query]);
+  // 공용 식재료 마스터 검색 (GET /api/v1/ingredients)
+  const search = useIngredientSearch(
+    { keyword, activeOnly: true, size: MAX_SUGGESTIONS },
+    { enabled: keyword.length > 0 },
+  );
+  // 유저 보유 식재료 (GET /api/v1/users/{userId}/ingredients)
+  const owned = useUserIngredients();
+  const addIngredient = useAddUserIngredient();
+  const removeIngredient = useRemoveUserIngredient();
+
+  const selected = owned.data?.items ?? [];
+  const matches = search.data?.items ?? [];
+
+  const isSelected = (ingredientId: number) =>
+    selected.some((item) => item.ingredientId === ingredientId);
 
   const showSuggest = open && query.trim().length > 0;
   const activeDescendantId =
@@ -47,22 +54,26 @@ const IngredientRegisterPage = () => {
     activeOptionRef.current?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex, showSuggest]);
 
-  const add = (name: string) => {
-    const entry = DICTIONARY.find((d) => d.name === name);
-    if (!entry || isSelected(name)) return; // 사전에 없는 단어는 등록 불가
-    setSelected((prev) => [
-      ...prev,
-      { name: entry.name, category: entry.category },
-    ]);
-    setQuery('');
-    setOpen(false);
-    setActiveIndex(-1);
-    inputRef.current?.focus();
+  const onError = (error: unknown) => window.alert(getApiErrorMessage(error));
+
+  const add = (ingredientId: number) => {
+    if (isSelected(ingredientId)) return;
+    addIngredient.mutate(
+      { ingredientId },
+      {
+        onSuccess: () => {
+          setQuery('');
+          setOpen(false);
+          setActiveIndex(-1);
+          inputRef.current?.focus();
+        },
+        onError,
+      },
+    );
   };
 
-  const remove = (name: string) => {
-    setSelected((prev) => prev.filter((it) => it.name !== name));
-  };
+  const remove = (ingredientId: number) =>
+    removeIngredient.mutate(ingredientId, { onError });
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (!showSuggest || matches.length === 0) return;
@@ -70,13 +81,12 @@ const IngredientRegisterPage = () => {
       e.preventDefault();
       const dir = e.key === 'ArrowDown' ? 1 : -1;
       const navigableIndices = matches.reduce<number[]>((indices, match, i) => {
-        if (!isSelected(match.name)) indices.push(i);
+        if (!isSelected(match.ingredientId)) indices.push(i);
         return indices;
       }, []);
 
       setActiveIndex((prev) => {
         if (navigableIndices.length === 0) return -1;
-
         const currentPosition = navigableIndices.indexOf(prev);
         const nextPosition =
           currentPosition === -1
@@ -85,24 +95,17 @@ const IngredientRegisterPage = () => {
               : navigableIndices.length - 1
             : (currentPosition + dir + navigableIndices.length) %
               navigableIndices.length;
-
         return navigableIndices[nextPosition];
       });
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      // 직접 입력값이 아니라 선택된 자동완성 항목만 등록
-      if (activeIndex >= 0 && !isSelected(matches[activeIndex].name)) {
-        add(matches[activeIndex].name);
+      if (activeIndex >= 0 && !isSelected(matches[activeIndex].ingredientId)) {
+        add(matches[activeIndex].ingredientId);
       }
     } else if (e.key === 'Escape') {
       setOpen(false);
       setActiveIndex(-1);
     }
-  };
-
-  const handleSubmit = () => {
-    if (selected.length === 0) return;
-    // TODO: 등록 완료 화면으로 이동 (식재료 등록 완료)
   };
 
   return (
@@ -161,8 +164,9 @@ const IngredientRegisterPage = () => {
               {showSuggest && (
                 <>
                   <div className={s.divider} />
-                  {matches.length === 0 ? (
-                    // 검색 결과가 없을 때 입력한 내용을 함께 보여준다
+                  {search.isFetching && matches.length === 0 ? (
+                    <p className={s.suggestEmpty}>검색 중…</p>
+                  ) : matches.length === 0 ? (
                     <p className={s.suggestEmpty}>
                       ‘{query.trim()}’ 검색 결과가 없어요
                     </p>
@@ -173,7 +177,7 @@ const IngredientRegisterPage = () => {
                       role="listbox"
                     >
                       {matches.map((m, i) => {
-                        const added = isSelected(m.name);
+                        const added = isSelected(m.ingredientId);
                         const active = i === activeIndex;
                         const itemClassName = [
                           s.suggestItem,
@@ -183,7 +187,7 @@ const IngredientRegisterPage = () => {
                           .filter(Boolean)
                           .join(' ');
                         return (
-                          <li key={m.name}>
+                          <li key={m.ingredientId}>
                             <button
                               ref={active ? activeOptionRef : undefined}
                               type="button"
@@ -193,9 +197,9 @@ const IngredientRegisterPage = () => {
                               className={itemClassName}
                               // mousedown 으로 등록해 input blur 보다 먼저 처리
                               onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => add(m.name)}
+                              onClick={() => add(m.ingredientId)}
                             >
-                              <span>{m.name}</span>
+                              <span>{m.ingredientName}</span>
                               {added && (
                                 <span className={s.addedBadge}>
                                   이미 추가됨
@@ -215,20 +219,22 @@ const IngredientRegisterPage = () => {
 
         <section className={s.categories}>
           {CATEGORIES.map((c) => {
-            const items = selected.filter((it) => it.category === c.id);
+            const items = selected.filter(
+              (it) => toCategoryId(it.category) === c.id,
+            );
             return (
               <div className={s.category} key={c.id}>
                 <h2 className={s.categoryLabel}>{c.label}</h2>
                 {items.length > 0 && (
                   <div className={s.chips}>
                     {items.map((it) => (
-                      <span className={s.chip} key={it.name}>
-                        {it.name}
+                      <span className={s.chip} key={it.ingredientId}>
+                        {it.ingredientName}
                         <button
                           className={s.chipRemove}
                           type="button"
-                          aria-label={`${it.name} 삭제`}
-                          onClick={() => remove(it.name)}
+                          aria-label={`${it.ingredientName} 삭제`}
+                          onClick={() => remove(it.ingredientId)}
                         >
                           <CloseIcon aria-hidden />
                         </button>
@@ -248,7 +254,7 @@ const IngredientRegisterPage = () => {
           className={s.cta}
           type="button"
           disabled={selected.length === 0}
-          onClick={handleSubmit}
+          onClick={() => navigate('/recommend')}
         >
           등록하기
         </button>
