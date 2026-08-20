@@ -186,6 +186,11 @@ export const previewButton = style({
   margin: '12px 0 0 auto',
   color: theme.link,
   fontSize: '14px',
+  selectors: {
+    // 선택된 카드는 배경이 초록이라 링크 기본색(파랑)이 대비 2:1 수준으로 떨어진다.
+    // 같은 카드의 다른 텍스트와 맞춰 흰색으로 둔다.
+    [`${selectedCard} &`]: { color: theme.onPrimary },
+  },
 });
 export const planTitle = style({ marginTop: '24px', fontSize: '18px' });
 export const planDescription = style({
