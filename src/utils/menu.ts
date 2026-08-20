@@ -37,3 +37,44 @@ export const getTodayDayOfWeek = (): DayOfWeek => toDayOfWeek(new Date());
 /** "7/30 (목)" 형태의 날짜 라벨. */
 export const formatDateLabel = (date: Date = new Date()): string =>
   `${date.getMonth() + 1}/${date.getDate()} (${DAY_LABELS[toDayOfWeek(date)]})`;
+
+/** 이번 주(월요일 시작)에서 해당 요일의 실제 날짜를 구한다. */
+export const dateOfDayOfWeek = (
+  dayOfWeek: DayOfWeek,
+  base: Date = new Date(),
+): Date => {
+  const date = new Date(base);
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + (dayOfWeek - toDayOfWeek(base)));
+  return date;
+};
+
+/** "7/30(목)" — 요일 번호만으로 이번 주 기준 날짜 라벨을 만든다. */
+export const formatDayLabel = (dayOfWeek: DayOfWeek): string => {
+  const date = dateOfDayOfWeek(dayOfWeek);
+  return `${date.getMonth() + 1}/${date.getDate()}(${DAY_LABELS[dayOfWeek]})`;
+};
+
+/** 요일 이동 (1↔7 순환). */
+export const shiftDayOfWeek = (
+  dayOfWeek: DayOfWeek,
+  delta: number,
+): DayOfWeek => (((dayOfWeek - 1 + delta + 7) % 7) + 1) as DayOfWeek;
+
+/** 끼니 슬롯을 아침/점심/저녁 순으로 정렬해 항상 3칸을 채운다(빈 슬롯은 null). */
+export const toMealSlots = <T extends { mealType: MealType }>(
+  dishes: readonly T[] | undefined,
+): { mealType: MealType; dish: T | null }[] =>
+  MEAL_TYPES.map((mealType) => ({
+    mealType,
+    dish: dishes?.find((dish) => dish.mealType === mealType) ?? null,
+  }));
+
+/** 원화 표기. null/undefined 면 표기 불가 문구를 돌려준다. */
+export const formatWon = (value: number | null | undefined): string =>
+  value == null ? '가격 정보 없음' : `${value.toLocaleString('ko-KR')}원`;
+
+/** 조리 시간 표기. 없으면 undefined. */
+export const formatCookingTime = (
+  minutes: number | null | undefined,
+): string | undefined => (minutes == null ? undefined : `조리 ${minutes}분`);
