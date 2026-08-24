@@ -28,29 +28,39 @@ export const backButton = style({
   width: '28px',
   textAlign: 'left',
 });
+/*
+ * 안내 아이콘. 원은 InfoIcon SVG 가 직접 그린다.
+ * 예전에 텍스트 'i' 를 쓰던 시절의 CSS 테두리 원이 남아 있어
+ * 원이 두 겹으로 보이고 20px 상자 안에서 아이콘이 눌렸다.
+ */
 export const infoIcon = style({
   display: 'grid',
   placeItems: 'center',
-  width: '20px',
-  height: '20px',
-  border: `2px solid ${theme.primaryScale[600]}`,
-  borderRadius: '50%',
+  width: '24px',
+  height: '24px',
+  flex: 'none',
   color: theme.primaryScale[600],
-  fontWeight: 700,
 });
 export const dateBar = style([
   flex.BETWEEN,
   {
     marginTop: spacing.lg,
     height: '60px',
-    padding: '0 18px',
+    padding: `0 ${spacing.md}`,
     borderRadius: '8px',
     background: theme.primaryScale[600],
     color: theme.onPrimary,
     fontSize: '20px',
-    lineHeight: '24px',
+    lineHeight: '28px',
+    fontWeight: 600,
   },
 ]);
+/** 날짜 이동 화살표. 시안과 같은 24px 아이콘 버튼. */
+export const dateArrow = style([
+  flex.CENTER,
+  { width: '24px', height: '24px', flex: 'none', color: theme.onPrimary },
+]);
+export const dateArrowNext = style({ transform: 'rotate(180deg)' });
 export const costBar = style({
   marginTop: spacing.sm,
   height: '32px',
@@ -125,22 +135,8 @@ export const recipePreview = style([
     background: theme.neutral[200],
   },
 ]);
-export const recipeIcon = style({
-  width: '22px',
-  height: '22px',
-  border: `2px solid ${theme.textPrimary}`,
-  borderRadius: '4px',
-  position: 'relative',
-  selectors: {
-    '&::after': {
-      content: '"☰"',
-      position: 'absolute',
-      left: '3px',
-      top: '-2px',
-      fontSize: '13px',
-    },
-  },
-});
+/** 이미지 자리 표시 아이콘 색. 모양은 NoteOutline SVG 가 그린다. */
+export const recipeIcon = style({ color: theme.textPrimary });
 export const bottomButton = style({
   width: '100%',
   height: '48px',
@@ -232,6 +228,7 @@ export const modalBackdrop = style({
  * 고정 px 대신 뷰포트 기준으로 재고, 헤더는 고정한 채 본문만 스크롤시킨다.
  */
 export const previewModal = style({
+  position: 'relative',
   display: 'flex',
   flexDirection: 'column',
   width: 'min(361px, calc(100vw - 32px))',
@@ -240,17 +237,18 @@ export const previewModal = style({
   borderRadius: '16px',
   background: theme.surface,
 });
-export const modalHeader = style([
-  flex.BETWEEN,
-  {
-    flex: '0 0 auto',
-    height: '64px',
-    padding: '0 16px',
-    background: theme.primaryScale[600],
-    color: theme.onPrimary,
-    fontSize: '22px',
-  },
-]);
+/** 시안의 모달 헤더는 식단 이름만 있고 닫기는 하단 버튼이 맡는다. */
+export const modalHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  flex: '0 0 auto',
+  height: '64px',
+  padding: `0 ${spacing.md}`,
+  background: theme.primaryScale[600],
+  color: theme.onPrimary,
+  fontSize: '22px',
+  fontWeight: 600,
+});
 export const modalBody = style({
   display: 'flex',
   flexDirection: 'column',
@@ -262,17 +260,47 @@ export const modalBody = style({
   overscrollBehavior: 'contain',
   WebkitOverflowScrolling: 'touch',
   fontSize: '14px',
+  // 하단 닫기 버튼이 덮는 만큼 비워 둔다. 시안처럼 내용이 버튼 뒤로 흘러간다.
+  paddingBottom: '96px',
+});
+/** 스크롤 영역 위에 떠 있는 닫기 버튼 (시안 07). */
+export const modalFooter = style([
+  flex.CENTER,
+  {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: `${spacing.md} ${spacing.md} ${spacing.lg}`,
+    background: `linear-gradient(to bottom, rgba(255,255,255,0), ${theme.surface} 40%)`,
+  },
+]);
+export const modalCloseButton = style({
+  width: '100%',
+  maxWidth: '241px',
+  height: '48px',
+  borderRadius: '8px',
+  background: theme.primaryScale[600],
+  color: theme.onPrimary,
+  fontSize: '18px',
+  lineHeight: '24px',
+  fontWeight: 600,
 });
 export const dayMeals = style([
   flex.BETWEEN,
   { gap: spacing.sm, marginTop: spacing.sm },
 ]);
 export const dayMeal = style({
-  flex: 1,
+  flex: '1 1 0',
+  minWidth: 0,
+  // 이름이 길면 그 칸만 높아져 세 칸이 들쭉날쭉했다. 높이를 고정한다.
+  height: '104px',
   padding: '8px',
   border: `1px solid ${theme.neutral[200]}`,
   borderRadius: '8px',
   fontSize: '13px',
+  lineHeight: '16px',
+  overflow: 'hidden',
 });
 export const modalPlaceholder = style({
   height: '56px',

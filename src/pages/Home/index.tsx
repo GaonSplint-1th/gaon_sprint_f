@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { ArrowLeftIcon, NoteOutline } from '@/components/icons';
 import { useDayMenu } from '@/services/menu';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorStatus } from '@/api';
@@ -45,7 +46,9 @@ const MenuCard = ({ mealType, dish, cost, onOpenRecipe }: MenuCardProps) => {
         </button>
       </div>
       <div className={s.recipePreview} aria-hidden="true">
-        <span className={s.recipeIcon} />
+        <span className={s.recipeIcon}>
+          <NoteOutline size={34} color="currentColor" />
+        </span>
       </div>
     </article>
   );
@@ -85,18 +88,20 @@ const HomePage = () => {
       <div className={s.dateBar}>
         <button
           type="button"
+          className={s.dateArrow}
           aria-label="이전 날짜"
           onClick={() => setDayOfWeek((day) => shiftDayOfWeek(day, -1))}
         >
-          ‹
+          <ArrowLeftIcon />
         </button>
         <strong>{formatDayLabel(dayOfWeek)}</strong>
         <button
           type="button"
+          className={`${s.dateArrow} ${s.dateArrowNext}`}
           aria-label="다음 날짜"
           onClick={() => setDayOfWeek((day) => shiftDayOfWeek(day, 1))}
         >
-          ›
+          <ArrowLeftIcon />
         </button>
       </div>
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, CloseIcon, InfoIcon } from '@/components/icons';
+import { ArrowLeftIcon, InfoIcon } from '@/components/icons';
 import { useCreateCurrentMenu } from '@/services/menu';
 import {
   useWeeklyMenuDetail,
@@ -146,9 +146,6 @@ const PreviewModal = ({
       >
         <div className={s.modalHeader}>
           <strong>{detail.data?.name ?? '불러오는 중…'}</strong>
-          <button type="button" aria-label="미리보기 닫기" onClick={onClose}>
-            <CloseIcon />
-          </button>
         </div>
         <div className={s.modalBody} aria-busy={detail.isLoading}>
           {detail.data?.days.map((day) => (
@@ -164,6 +161,15 @@ const PreviewModal = ({
               </div>
             </div>
           ))}
+        </div>
+        <div className={s.modalFooter}>
+          <button
+            type="button"
+            className={s.modalCloseButton}
+            onClick={onClose}
+          >
+            닫기
+          </button>
         </div>
       </div>
     </div>
