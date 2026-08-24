@@ -39,23 +39,11 @@ export const highlightFilled = style({
   background: 'rgba(65, 170, 44, 0.28)',
 });
 
-export const connector = style({
-  position: 'fixed',
-  color: theme.primaryScale[600],
-  pointerEvents: 'none',
-});
-
 export const callout = style({
   position: 'fixed',
-  maxWidth: '260px',
+  maxWidth: '300px',
   color: theme.onPrimary,
   pointerEvents: 'none',
-});
-
-/** 등록하기 설명은 오른쪽 정렬로 버튼 쪽을 향한다. */
-export const calloutRight = style({
-  textAlign: 'right',
-  maxWidth: 'none',
 });
 
 export const calloutTitle = style([

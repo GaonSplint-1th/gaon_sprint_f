@@ -8,6 +8,8 @@ import {
 } from '@/services/weeklyMenu';
 import { getApiErrorMessage } from '@/api';
 import { ROUTES } from '@/constants';
+import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
+import OnboardingGuide from '@/components/common/OnboardingGuide';
 import {
   MEAL_LABELS,
   formatDayLabel,
@@ -38,6 +40,8 @@ const Skeleton = () => (
 );
 
 interface TemplateCardProps {
+  /** 안내에서 짚어 줄 첫 카드에만 넘어온다. */
+  cardRef?: React.RefObject<HTMLElement | null>;
   template: WeeklyMenuSummary;
   selected: boolean;
   onSelect: () => void;
@@ -45,6 +49,7 @@ interface TemplateCardProps {
 }
 
 const TemplateCard = ({
+  cardRef,
   template,
   selected,
   onSelect,
@@ -54,6 +59,7 @@ const TemplateCard = ({
   // 상세(21끼 구성)는 미리보기를 열 때만 받아 온다.
   return (
     <article
+      ref={cardRef as React.Ref<HTMLElement>}
       className={`${s.recommendCard} ${selected ? s.selectedCard : ''}`}
       onClick={onSelect}
       onKeyDown={(event) => {
@@ -183,6 +189,10 @@ const DietRecommendPage = () => {
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [previewId, setPreviewId] = useState<number | null>(null);
+  const firstCardRef = useRef<HTMLElement>(null);
+  const ctaRef = useRef<HTMLButtonElement>(null);
+  // 처음 들어온 사용자에게 한 번 자동으로 안내를 띄운다.
+  const guide = useFirstVisitGuide('recommend');
 
   if (templates.isLoading) return <Skeleton />;
 
@@ -212,18 +222,24 @@ const DietRecommendPage = () => {
           <ArrowLeftIcon />
         </button>
         <h1 className={s.title}>식단 추천</h1>
-        <span className={s.infoIcon} aria-label="식단 추천 안내">
+        <button
+          type="button"
+          className={s.infoIcon}
+          aria-label="식단 추천 안내 보기"
+          onClick={guide.reopen}
+        >
           <InfoIcon />
-        </span>
+        </button>
       </header>
 
       <div className={s.recommendList}>
         {items.length === 0 ? (
           <p className={s.planDescription}>추천할 수 있는 식단이 없습니다.</p>
         ) : (
-          items.map((template) => (
+          items.map((template, index) => (
             <TemplateCard
               key={template.weeklyMenuId}
+              cardRef={index === 0 ? firstCardRef : undefined}
               template={template}
               selected={selectedId === template.weeklyMenuId}
               onSelect={() => setSelectedId(template.weeklyMenuId)}
@@ -234,6 +250,7 @@ const DietRecommendPage = () => {
       </div>
 
       <button
+        ref={ctaRef}
         type="button"
         className={`${s.bottomButton} ${selectedId == null ? s.disabledButton : ''}`}
         disabled={selectedId == null || createCurrentMenu.isPending}
@@ -241,6 +258,28 @@ const DietRecommendPage = () => {
       >
         {selectedId == null ? '메뉴 선택하기' : '이 식단으로 시작하기'}
       </button>
+
+      {guide.open && (
+        <OnboardingGuide
+          label="식단 추천 안내"
+          onClose={guide.close}
+          steps={[
+            {
+              target: firstCardRef,
+              title: '추천식단',
+              body: '추천된 식단을 골라 적용해보세요.',
+              filled: true,
+            },
+            {
+              target: ctaRef,
+              title: '이 식단으로 시작하기',
+              body: '고른 식단을 적용하면 오늘의 식단에서 확인할 수 있어요.',
+              placement: 'above',
+              filled: true,
+            },
+          ]}
+        />
+      )}
 
       {previewId != null && (
         <PreviewModal

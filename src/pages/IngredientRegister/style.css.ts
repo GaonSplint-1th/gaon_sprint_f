@@ -25,7 +25,7 @@ export const screen = style([
     position: 'relative',
     width: '100%',
     maxWidth: layout.frame.width,
-    minHeight: '100vh',
+    minHeight: '100dvh',
     marginInline: 'auto',
     paddingTop: '44px',
     // 하단 고정 CTA + 그라디언트 영역 확보 (safe area 포함)

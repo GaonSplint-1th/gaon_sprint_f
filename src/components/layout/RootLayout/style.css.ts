@@ -1,7 +1,7 @@
 import { style } from '@vanilla-extract/css';
 import { flex, layout } from '@/styles';
 
-export const wrapper = style([flex.COLUMN_FLEX, { minHeight: '100vh' }]);
+export const wrapper = style([flex.COLUMN_FLEX, { minHeight: '100dvh' }]);
 
 /*
  * 모바일 전용 앱이라 본문은 기준 프레임(393px)을 넘지 않는다.

@@ -16,8 +16,9 @@ import {
 import { getApiErrorMessage } from '@/api';
 import { ROUTES } from '@/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
+import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { toCategoryId } from '@/utils/ingredient';
-import OnboardingGuide from './OnboardingGuide';
 import * as s from './style.css';
 
 const MAX_SUGGESTIONS = 8;
@@ -35,7 +36,9 @@ const IngredientRegisterPage = () => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [guideOpen, setGuideOpen] = useState(false);
+
+  // 처음 들어온 사용자에게 한 번 자동으로 안내를 띄운다.
+  const guide = useFirstVisitGuide('ingredient-register');
 
   const keyword = useDebouncedValue(query.trim());
 
@@ -136,7 +139,7 @@ const IngredientRegisterPage = () => {
           type="button"
           className={s.appBarInfo}
           aria-label="식재료 등록 안내 보기"
-          onClick={() => setGuideOpen(true)}
+          onClick={guide.reopen}
         >
           <InfoIcon />
         </button>
@@ -285,11 +288,24 @@ const IngredientRegisterPage = () => {
           등록하기
         </button>
       </div>
-      {guideOpen && (
+      {guide.open && (
         <OnboardingGuide
-          searchRef={searchFieldRef}
-          ctaRef={ctaRef}
-          onClose={() => setGuideOpen(false)}
+          label="식재료 등록 안내"
+          onClose={guide.close}
+          steps={[
+            {
+              target: searchFieldRef,
+              title: '식재료 검색',
+              body: '보유 중인 식재료를 검색하고 선택하세요. 입력값에 기반하여 식단을 추천해드립니다.',
+            },
+            {
+              target: ctaRef,
+              title: '등록하기',
+              body: '등록하기를 선택하여 다음으로 넘어갑니다.',
+              placement: 'above',
+              filled: true,
+            },
+          ]}
         />
       )}
     </main>
