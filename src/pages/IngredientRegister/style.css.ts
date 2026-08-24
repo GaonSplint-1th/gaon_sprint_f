@@ -244,3 +244,21 @@ export const cta = style([
     },
   },
 ]);
+
+/** 앱바 우측 안내 아이콘 (시안 01). */
+export const appBarInfo = style([
+  flex.CENTER,
+  {
+    width: '24px',
+    height: '24px',
+    flex: 'none',
+    // 시안의 안내 아이콘은 primary 초록. 기본 상속색(textPrimary)이면 검게 나온다.
+    color: theme.primaryScale[600],
+  },
+]);
+
+/** 검색 필드 아래 안내 문구 (시안 01). 자동완성이 열리면 감춘다. */
+export const searchHint = style([
+  font.caption,
+  { marginTop: spacing.sm, color: theme.textTertiary },
+]);

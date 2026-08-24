@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDayMenu } from '@/services/menu';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorStatus } from '@/api';
+import { ROUTES } from '@/constants';
 import {
   MEAL_LABELS,
   formatCookingTime,
@@ -103,9 +104,19 @@ const HomePage = () => {
         </h2>
 
         {hasNoMenu ? (
-          <p className={s.mealDetail}>
-            아직 등록된 식단이 없어요. 아래에서 식단을 추천받아 보세요.
-          </p>
+          <>
+            <p className={s.mealDetail}>
+              아직 등록된 식단이 없어요. 보유 식재료를 등록하고 식단을
+              받아보세요.
+            </p>
+            <button
+              type="button"
+              className={s.bottomButton}
+              onClick={() => navigate(ROUTES.INGREDIENT_REGISTER)}
+            >
+              식재료 등록하러 가기
+            </button>
+          </>
         ) : (
           <div className={s.mealList} aria-busy={dayMenu.isLoading}>
             {slots.map(({ mealType, dish }) => (
@@ -120,14 +131,6 @@ const HomePage = () => {
           </div>
         )}
       </section>
-
-      <button
-        type="button"
-        className={s.bottomButton}
-        onClick={() => navigate('/recommend')}
-      >
-        식단 추천
-      </button>
     </div>
   );
 };

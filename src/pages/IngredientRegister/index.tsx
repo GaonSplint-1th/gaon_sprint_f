@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, CloseIcon, SearchIcon } from '@/components/icons';
+import {
+  ArrowLeftIcon,
+  CloseIcon,
+  InfoIcon,
+  SearchIcon,
+} from '@/components/icons';
 import {
   CATEGORIES,
   useAddUserIngredient,
@@ -120,6 +125,9 @@ const IngredientRegisterPage = () => {
           <ArrowLeftIcon aria-hidden />
         </button>
         <h1 className={s.appBarTitle}>보유 식재료 등록</h1>
+        <span className={s.appBarInfo} aria-label="식재료 등록 안내">
+          <InfoIcon />
+        </span>
       </header>
 
       <div className={s.body}>
@@ -167,9 +175,7 @@ const IngredientRegisterPage = () => {
                   {search.isFetching && matches.length === 0 ? (
                     <p className={s.suggestEmpty}>검색 중…</p>
                   ) : matches.length === 0 ? (
-                    <p className={s.suggestEmpty}>
-                      ‘{query.trim()}’ 검색 결과가 없어요
-                    </p>
+                    <p className={s.suggestEmpty}>검색 결과가 없습니다.</p>
                   ) : (
                     <ul
                       className={s.suggestList}
@@ -215,6 +221,13 @@ const IngredientRegisterPage = () => {
               )}
             </div>
           </div>
+          {/*
+           * 시안 01 의 검색 안내. s.search 는 높이 44px 에 카드를 absolute 로
+           * 띄우는 상자라, 그 안에 두면 카드 뒤로 가려진다. 바깥 형제로 둔다.
+           */}
+          {!showSuggest && (
+            <p className={s.searchHint}>한글로만 검색할 수 있어요.</p>
+          )}
         </section>
 
         <section className={s.categories}>
