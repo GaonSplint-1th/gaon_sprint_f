@@ -80,20 +80,42 @@ export const mealCard = style([
     background: theme.surface,
   },
 ]);
+/*
+ * 식사 카드 글자 크기는 시안(08/09 메뉴수정하기) 값을 그대로 쓴다.
+ * 공용 토큰에는 18px SemiBold 가 없고, titleSmall(24px)을 쓰면
+ * 카드가 시안 높이(116px)를 넘겨 버린다.
+ */
 export const mealInfo = style([
   flex.COLUMN_FLEX,
-  { alignItems: 'flex-start', minWidth: 0, minHeight: '100px', flex: 1 },
+  { alignItems: 'flex-start', gap: spacing.xs, minWidth: 0, flex: 1 },
 ]);
-export const mealTime = style([font.titleSmall, { color: theme.textPrimary }]);
-export const mealName = style([font.caption, { marginTop: '7px' }]);
-export const mealDetail = style([
-  font.caption,
-  { marginTop: '4px', fontWeight: 600 },
-]);
-export const recipeButton = style([
-  font.caption,
-  { marginTop: 'auto', color: theme.link, fontWeight: 600 },
-]);
+export const mealTime = style({
+  color: theme.textPrimary,
+  fontSize: '18px',
+  lineHeight: '24px',
+  fontWeight: 600,
+});
+export const mealName = style({
+  color: theme.textPrimary,
+  fontSize: '16px',
+  lineHeight: '24px',
+  fontWeight: 400,
+});
+export const mealDetail = style({
+  color: theme.textPrimary,
+  fontSize: '14px',
+  lineHeight: '20px',
+  fontWeight: 500,
+});
+export const recipeButton = style({
+  color: theme.link,
+  fontSize: '14px',
+  lineHeight: '20px',
+  fontWeight: 500,
+  selectors: {
+    '&:disabled': { color: theme.textTertiary },
+  },
+});
 export const recipePreview = style([
   flex.CENTER,
   {
@@ -207,35 +229,49 @@ export const editScroll = style({
     '&::-webkit-scrollbar': { display: 'none' },
   },
 });
+/*
+ * 메뉴 선택기. 시안의 "스크롤하여 메뉴를 변경할 수 있습니다" 를 그대로 구현한다.
+ * 한 줄(24px)만 보이고 세로 스크롤로 후보를 넘기며, 스냅이 멈춘 항목이 선택된다.
+ * 가로 버튼 나열은 후보가 늘어나면 카드를 넘쳐 시안과 어긋나므로 쓰지 않는다.
+ */
 export const menuSwipe = style({
-  overflowX: 'auto',
-  maxWidth: '160px',
+  height: '24px',
+  overflowY: 'auto',
+  overscrollBehavior: 'contain',
+  scrollSnapType: 'y mandatory',
   scrollbarWidth: 'none',
-  selectors: { '&::-webkit-scrollbar': { display: 'none' } },
+  alignSelf: 'stretch',
+  selectors: {
+    '&::-webkit-scrollbar': { display: 'none' },
+    '&:focus-visible': { outline: `2px solid ${theme.primaryScale[600]}` },
+  },
 });
 export const menuSwipeTrack = style({
   display: 'flex',
-  gap: spacing.sm,
-  width: 'max-content',
+  flexDirection: 'column',
 });
 export const menuOption = style({
-  padding: '4px 8px',
-  border: `1px solid ${theme.neutral[200]}`,
-  borderRadius: '6px',
-  background: theme.surface,
-  fontSize: '14px',
+  height: '24px',
+  scrollSnapAlign: 'start',
+  display: 'block',
+  width: '100%',
+  textAlign: 'left',
+  color: theme.textTertiary,
+  fontSize: '16px',
+  lineHeight: '24px',
+  fontWeight: 400,
   whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
+/** 스냅으로 멈춰 있는(선택된) 항목. */
 export const activeMenuOption = style({
-  borderColor: theme.primaryScale[600],
-  background: theme.primaryScale[600],
-  color: theme.onPrimary,
+  color: theme.textPrimary,
 });
 export const swipeMeals = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing.md,
-  touchAction: 'pan-y',
+  gap: spacing.lg,
 });
 export const modalBackdrop = style({
   position: 'fixed',
@@ -245,9 +281,15 @@ export const modalBackdrop = style({
   placeItems: 'center',
   background: 'rgba(0,0,0,.18)',
 });
+/*
+ * 7일 × 3끼가 모두 들어가면서 내용 높이가 화면을 넘어선다.
+ * 고정 px 대신 뷰포트 기준으로 재고, 헤더는 고정한 채 본문만 스크롤시킨다.
+ */
 export const previewModal = style({
-  width: '361px',
-  maxHeight: '623px',
+  display: 'flex',
+  flexDirection: 'column',
+  width: 'min(361px, calc(100vw - 32px))',
+  maxHeight: 'min(623px, calc(100dvh - 64px))',
   overflow: 'hidden',
   borderRadius: '16px',
   background: theme.surface,
@@ -255,6 +297,7 @@ export const previewModal = style({
 export const modalHeader = style([
   flex.BETWEEN,
   {
+    flex: '0 0 auto',
     height: '64px',
     padding: '0 16px',
     background: theme.primaryScale[600],
@@ -266,9 +309,12 @@ export const modalBody = style({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing.md,
-  padding: '24px 16px 8px',
-  maxHeight: '460px',
+  padding: '24px 16px',
+  minHeight: 0,
+  flex: 1,
   overflowY: 'auto',
+  overscrollBehavior: 'contain',
+  WebkitOverflowScrolling: 'touch',
   fontSize: '14px',
 });
 export const dayMeals = style([
