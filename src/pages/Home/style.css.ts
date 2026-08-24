@@ -214,64 +214,10 @@ export const previewButton = style({
     [`${selectedCard} &`]: { color: theme.onPrimary },
   },
 });
-export const planTitle = style({ marginTop: '24px', fontSize: '18px' });
 export const planDescription = style({
   marginTop: '8px',
   color: theme.textSecondary,
   fontSize: '14px',
-});
-export const editScroll = style({
-  maxHeight: '440px',
-  overflowY: 'auto',
-  marginTop: spacing.md,
-  scrollbarWidth: 'none',
-  selectors: {
-    '&::-webkit-scrollbar': { display: 'none' },
-  },
-});
-/*
- * 메뉴 선택기. 시안의 "스크롤하여 메뉴를 변경할 수 있습니다" 를 그대로 구현한다.
- * 한 줄(24px)만 보이고 세로 스크롤로 후보를 넘기며, 스냅이 멈춘 항목이 선택된다.
- * 가로 버튼 나열은 후보가 늘어나면 카드를 넘쳐 시안과 어긋나므로 쓰지 않는다.
- */
-export const menuSwipe = style({
-  height: '24px',
-  overflowY: 'auto',
-  overscrollBehavior: 'contain',
-  scrollSnapType: 'y mandatory',
-  scrollbarWidth: 'none',
-  alignSelf: 'stretch',
-  selectors: {
-    '&::-webkit-scrollbar': { display: 'none' },
-    '&:focus-visible': { outline: `2px solid ${theme.primaryScale[600]}` },
-  },
-});
-export const menuSwipeTrack = style({
-  display: 'flex',
-  flexDirection: 'column',
-});
-export const menuOption = style({
-  height: '24px',
-  scrollSnapAlign: 'start',
-  display: 'block',
-  width: '100%',
-  textAlign: 'left',
-  color: theme.textTertiary,
-  fontSize: '16px',
-  lineHeight: '24px',
-  fontWeight: 400,
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-});
-/** 스냅으로 멈춰 있는(선택된) 항목. */
-export const activeMenuOption = style({
-  color: theme.textPrimary,
-});
-export const swipeMeals = style({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing.lg,
 });
 export const modalBackdrop = style({
   position: 'fixed',
@@ -334,17 +280,6 @@ export const modalPlaceholder = style({
   borderRadius: '4px',
   background: theme.neutral[200],
 });
-export const modalClose = style({
-  display: 'block',
-  width: '180px',
-  height: '48px',
-  margin: '16px auto 24px',
-  borderRadius: '8px',
-  background: theme.primaryScale[600],
-  color: theme.onPrimary,
-  fontWeight: 700,
-  fontSize: '16px',
-});
 export const skeletonTitle = style({
   display: 'flex',
   alignItems: 'center',
@@ -363,12 +298,6 @@ export const skeletonCard = style({
   minHeight: '184px',
   borderRadius: '16px',
   background: theme.surface,
-});
-export const skeletonButton = style({
-  height: '48px',
-  marginTop: '28px',
-  borderRadius: '8px',
-  background: theme.neutral[200],
 });
 export const skeletonCircle = style({
   width: '24px',

@@ -7,6 +7,7 @@ import {
   useWeeklyMenuTemplates,
 } from '@/services/weeklyMenu';
 import { getApiErrorMessage } from '@/api';
+import { ROUTES } from '@/constants';
 import {
   MEAL_LABELS,
   formatDayLabel,
@@ -187,7 +188,7 @@ const DietRecommendPage = () => {
     createCurrentMenu.mutate(
       { weeklyMenuId: selectedId },
       {
-        onSuccess: () => navigate('/edit'),
+        onSuccess: () => navigate(ROUTES.HOME),
         onError: (error) => window.alert(getApiErrorMessage(error)),
       },
     );
@@ -232,7 +233,7 @@ const DietRecommendPage = () => {
         disabled={selectedId == null || createCurrentMenu.isPending}
         onClick={applySelected}
       >
-        {selectedId == null ? '메뉴 선택하기' : '메뉴 수정하기'}
+        {selectedId == null ? '메뉴 선택하기' : '이 식단으로 시작하기'}
       </button>
 
       {previewId != null && (
