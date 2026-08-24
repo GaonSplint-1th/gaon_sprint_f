@@ -6,7 +6,6 @@ import RecipePage from '@/pages/Recipe';
 import DietRecommendPage from '@/pages/DietRecommend';
 import MenuEditPage from '@/pages/MenuEdit';
 import IngredientRegisterPage from '@/pages/IngredientRegister';
-import ErrorCheckPage from '@/pages/ErrorCheck';
 import NotFoundPage from '@/pages/NotFound';
 
 export const router = createBrowserRouter([
@@ -23,6 +22,5 @@ export const router = createBrowserRouter([
   },
   // 자체 앱바를 가진 모바일 전용 화면 (RootLayout 미적용)
   { path: ROUTES.INGREDIENT_REGISTER, element: <IngredientRegisterPage /> },
-  { path: ROUTES.ERROR_CHECK, element: <ErrorCheckPage /> },
   { path: '*', element: <NotFoundPage /> },
 ]);

@@ -16,6 +16,7 @@ import {
 import { getApiErrorMessage } from '@/api';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { toCategoryId } from '@/utils/ingredient';
+import OnboardingGuide from './OnboardingGuide';
 import * as s from './style.css';
 
 const MAX_SUGGESTIONS = 8;
@@ -27,10 +28,13 @@ const IngredientRegisterPage = () => {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const activeOptionRef = useRef<HTMLButtonElement>(null);
+  const searchFieldRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLButtonElement>(null);
 
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   const keyword = useDebouncedValue(query.trim());
 
@@ -125,9 +129,14 @@ const IngredientRegisterPage = () => {
           <ArrowLeftIcon aria-hidden />
         </button>
         <h1 className={s.appBarTitle}>보유 식재료 등록</h1>
-        <span className={s.appBarInfo} aria-label="식재료 등록 안내">
+        <button
+          type="button"
+          className={s.appBarInfo}
+          aria-label="식재료 등록 안내 보기"
+          onClick={() => setGuideOpen(true)}
+        >
           <InfoIcon />
-        </span>
+        </button>
       </header>
 
       <div className={s.body}>
@@ -142,7 +151,7 @@ const IngredientRegisterPage = () => {
                   : s.searchCard
               }
             >
-              <div className={s.searchField}>
+              <div className={s.searchField} ref={searchFieldRef}>
                 <input
                   ref={inputRef}
                   className={s.searchInput}
@@ -264,6 +273,7 @@ const IngredientRegisterPage = () => {
       <div className={s.ctaGradient} aria-hidden />
       <div className={s.ctaDock}>
         <button
+          ref={ctaRef}
           className={s.cta}
           type="button"
           disabled={selected.length === 0}
@@ -272,6 +282,13 @@ const IngredientRegisterPage = () => {
           등록하기
         </button>
       </div>
+      {guideOpen && (
+        <OnboardingGuide
+          searchRef={searchFieldRef}
+          ctaRef={ctaRef}
+          onClose={() => setGuideOpen(false)}
+        />
+      )}
     </main>
   );
 };
