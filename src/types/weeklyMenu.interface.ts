@@ -4,11 +4,18 @@ import type { DayOfWeek, MealType } from './common.interface';
 export interface WeeklyMenuSummary {
   weeklyMenuId: number;
   name: string;
+  /** 식단 요약 문구. 백엔드가 저녁 메뉴 기준으로 자동 생성한다. */
   highlight: string | null;
   imageUrl: string | null;
   /** null 이면 기본(공개) 템플릿, 값이 있으면 유저 개인 템플릿. */
   ownerUserId: string | null;
   sourceWeeklyMenuId: number | null;
+  /**
+   * 예상 식비(원). 보유 식재료를 차감한 금액으로,
+   * 가격 단건 조회(.../price)의 totalCost 와 같은 값이다.
+   * 끼니가 비었거나 가격을 아는 재료가 없으면 0.
+   */
+  estimatedCost: number | null;
 }
 
 /** 공개 + 내 템플릿 목록 응답. */

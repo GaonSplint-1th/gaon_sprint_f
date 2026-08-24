@@ -4,7 +4,6 @@ import { ArrowLeftIcon, CloseIcon, InfoIcon } from '@/components/icons';
 import { useCreateCurrentMenu } from '@/services/menu';
 import {
   useWeeklyMenuDetail,
-  useWeeklyMenuPrice,
   useWeeklyMenuTemplates,
 } from '@/services/weeklyMenu';
 import { getApiErrorMessage } from '@/api';
@@ -50,15 +49,8 @@ const TemplateCard = ({
   onSelect,
   onPreview,
 }: TemplateCardProps) => {
-  const detail = useWeeklyMenuDetail(template.weeklyMenuId);
-  const price = useWeeklyMenuPrice(template.weeklyMenuId);
-
-  // 카드 요약줄: 템플릿에 담긴 메뉴 이름을 앞에서 3개까지 보여준다.
-  const dishNames =
-    detail.data?.days
-      .flatMap((day) => day.dishes.map((dish) => dish.name))
-      .slice(0, 3) ?? [];
-
+  // 이름·요약 문구·예상 식비가 모두 목록 응답에 들어 있어 카드가 따로 호출하지 않는다.
+  // 상세(21끼 구성)는 미리보기를 열 때만 받아 온다.
   return (
     <article
       className={`${s.recommendCard} ${selected ? s.selectedCard : ''}`}
@@ -75,11 +67,7 @@ const TemplateCard = ({
     >
       <div className={s.recommendTop}>
         <strong>{template.name}</strong>
-        <span>
-          {price.isLoading
-            ? '계산 중…'
-            : `예상 ${formatWon(price.data?.totalCost)}`}
-        </span>
+        <span>예상 {formatWon(template.estimatedCost)}</span>
       </div>
       <div className={s.imageRow}>
         {[0, 1, 2].map((index) => (
@@ -92,9 +80,7 @@ const TemplateCard = ({
         <span className={s.ingredientIcon} aria-hidden="true">
           ★
         </span>
-        {dishNames.length > 0
-          ? dishNames.join(' · ')
-          : (template.highlight ?? '구성 정보 없음')}
+        {template.highlight ?? '구성 정보 없음'}
       </p>
       <button
         type="button"
