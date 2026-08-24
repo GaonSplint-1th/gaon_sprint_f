@@ -356,3 +356,61 @@ export const skeletonSideImage = style({
   borderRadius: '8px',
   background: theme.neutral[200],
 });
+
+/* ── 식단 수정 화면 ─────────────────────────────────────────── */
+
+export const planTitle = style({
+  marginTop: spacing.lg,
+  color: theme.textPrimary,
+  fontSize: '18px',
+  lineHeight: '24px',
+  fontWeight: 600,
+});
+/** 시안의 빨간 박스 = 실제로 보이는 범위. 이 안에서 카드가 세로로 스크롤된다. */
+export const editScroll = style({
+  marginTop: spacing.md,
+  maxHeight: '396px',
+  overflowY: 'auto',
+  overscrollBehavior: 'contain',
+  scrollbarWidth: 'none',
+  selectors: { '&::-webkit-scrollbar': { display: 'none' } },
+});
+export const swipeMeals = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing.md,
+});
+/** 카드와 삭제 버튼을 함께 담는 창. 카드가 왼쪽으로 밀리면 버튼이 드러난다. */
+export const swipeRow = style({
+  position: 'relative',
+  borderRadius: '8px',
+  overflow: 'hidden',
+});
+export const swipeDelete = style([
+  flex.CENTER,
+  {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: '72px',
+    background: theme.error,
+    color: theme.onPrimary,
+    fontSize: '14px',
+    fontWeight: 600,
+  },
+]);
+/*
+ * 스와이프로 열리는 카드 본체.
+ * translate 로 밀면 왼쪽 글자가 화면 밖으로 잘려 나간다. 시안처럼 글자를
+ * 그대로 두려면 카드가 밀리는 게 아니라 폭이 줄어야 한다.
+ */
+export const swipeCard = style({
+  position: 'relative',
+  width: '100%',
+  touchAction: 'pan-y',
+  transition: 'width 200ms cubic-bezier(.2,.7,.3,1)',
+});
+export const swipeCardDragging = style({ transition: 'none' });
+/** 카드가 줄어드는 동안 이미지 자리가 먼저 좁아지도록. */
+export const swipePreviewShrink = style({ minWidth: 0 });

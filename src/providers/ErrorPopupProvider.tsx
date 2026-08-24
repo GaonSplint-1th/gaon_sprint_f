@@ -1,7 +1,6 @@
 import {
   useCallback,
   useEffect,
-  useMemo,
   useState,
   type PropsWithChildren,
 } from 'react';
@@ -9,7 +8,6 @@ import ErrorPopup from '@/components/common/ErrorPopup';
 import { ERROR_POPUP_PRESETS } from '@/constants';
 import { registerErrorPopupBridge } from '@/libs/errorPopupBridge';
 import type { ErrorPopupOptions, ErrorPopupType } from '@/types';
-import { ErrorPopupContext } from './ErrorPopupContext';
 
 interface ErrorPopupState {
   isOpen: boolean;
@@ -55,7 +53,6 @@ const ErrorPopupProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
-  const value = useMemo(() => ({ showError, hideError }), [showError, hideError]);
 
   useEffect(() => {
     registerErrorPopupBridge(showError);
@@ -63,7 +60,7 @@ const ErrorPopupProvider = ({ children }: PropsWithChildren) => {
   }, [showError]);
 
   return (
-    <ErrorPopupContext.Provider value={value}>
+    <>
       {children}
       {state.isOpen && (
         <ErrorPopup
@@ -85,7 +82,7 @@ const ErrorPopupProvider = ({ children }: PropsWithChildren) => {
           }
         />
       )}
-    </ErrorPopupContext.Provider>
+    </>
   );
 };
 

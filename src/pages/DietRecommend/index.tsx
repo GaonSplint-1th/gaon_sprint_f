@@ -7,7 +7,6 @@ import {
   useWeeklyMenuTemplates,
 } from '@/services/weeklyMenu';
 import { getApiErrorMessage } from '@/api';
-import { ROUTES } from '@/constants';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import {
@@ -204,7 +203,7 @@ const DietRecommendPage = () => {
     createCurrentMenu.mutate(
       { weeklyMenuId: selectedId },
       {
-        onSuccess: () => navigate(ROUTES.HOME),
+        onSuccess: () => navigate('/edit'),
         onError: (error) => window.alert(getApiErrorMessage(error)),
       },
     );
@@ -256,7 +255,7 @@ const DietRecommendPage = () => {
         disabled={selectedId == null || createCurrentMenu.isPending}
         onClick={applySelected}
       >
-        {selectedId == null ? '메뉴 선택하기' : '이 식단으로 시작하기'}
+        {selectedId == null ? '메뉴 선택하기' : '메뉴 수정하기'}
       </button>
 
       {guide.open && (
@@ -272,8 +271,8 @@ const DietRecommendPage = () => {
             },
             {
               target: ctaRef,
-              title: '이 식단으로 시작하기',
-              body: '고른 식단을 적용하면 오늘의 식단에서 확인할 수 있어요.',
+              title: '메뉴 수정하기',
+              body: '메뉴 수정하기를 눌러 메뉴를 상세히 보고 수정해보세요.',
               placement: 'above',
               filled: true,
             },

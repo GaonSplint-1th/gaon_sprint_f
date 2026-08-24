@@ -34,9 +34,6 @@ export const toDayOfWeek = (date: Date): DayOfWeek => {
 /** 오늘 요일 (1=월 ... 7=일). */
 export const getTodayDayOfWeek = (): DayOfWeek => toDayOfWeek(new Date());
 
-/** "7/30 (목)" 형태의 날짜 라벨. */
-export const formatDateLabel = (date: Date = new Date()): string =>
-  `${date.getMonth() + 1}/${date.getDate()} (${DAY_LABELS[toDayOfWeek(date)]})`;
 
 /** 이번 주(월요일 시작)에서 해당 요일의 실제 날짜를 구한다. */
 export const dateOfDayOfWeek = (

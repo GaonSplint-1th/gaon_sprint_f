@@ -12,7 +12,7 @@ interface Rect {
   height: number;
 }
 
-export interface GuideStep {
+interface GuideStep {
   /** 짚어 줄 실제 요소. */
   target: RefObject<HTMLElement | null>;
   title: string;
