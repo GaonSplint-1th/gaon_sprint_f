@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type RefObject } from 'react';
 import { HideImage } from '@/components/icons';
 import type { Ingredient } from '@/types/recipe.interface';
 import IngredientPopup from '../IngredientPopup';
@@ -8,9 +8,16 @@ interface RecipeCardProps {
   name: string;
   imageUrl?: string;
   ingredients: Ingredient[];
+  /** 온보딩 안내가 짚어 줄 재료보기 버튼. */
+  ingredientButtonRef?: RefObject<HTMLButtonElement | null>;
 }
 
-const RecipeCard = ({ name, imageUrl, ingredients }: RecipeCardProps) => {
+const RecipeCard = ({
+  name,
+  imageUrl,
+  ingredients,
+  ingredientButtonRef,
+}: RecipeCardProps) => {
   const [isIngredientPopupOpen, setIsIngredientPopupOpen] = useState(false);
   const [isImageLoadFailed, setIsImageLoadFailed] = useState(false);
   const [loadedImageUrl, setLoadedImageUrl] = useState(imageUrl);
@@ -53,6 +60,7 @@ const RecipeCard = ({ name, imageUrl, ingredients }: RecipeCardProps) => {
       <div className={s.header}>
         <p className={s.name}>{name}</p>
         <button
+          ref={ingredientButtonRef}
           type="button"
           className={s.ingredientButton}
           onClick={() => setIsIngredientPopupOpen(true)}
