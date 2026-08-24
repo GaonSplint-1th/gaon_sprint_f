@@ -96,6 +96,8 @@ const OnboardingGuide = ({ steps, label, onClose }: OnboardingGuideProps) => {
         const rect = rects[index];
         if (!rect) return null;
         const above = step.placement === 'above';
+        // 단계마다 조금씩 늦게 나타나 시선이 순서대로 따라가게 한다.
+        const delay = `${index * 120}ms`;
         return (
           <div key={step.title}>
             <span
@@ -105,16 +107,19 @@ const OnboardingGuide = ({ steps, label, onClose }: OnboardingGuideProps) => {
                 left: rect.left,
                 width: rect.width,
                 height: rect.height,
+                animationDelay: delay,
               }}
               aria-hidden="true"
             />
             <div
               className={s.callout}
-              style={
-                above
-                  ? { bottom: `calc(100% - ${rect.top - 12}px)`, left: 24 }
-                  : { top: rect.top + rect.height + 12, left: 24 }
-              }
+              style={{
+                ...(above
+                  ? { bottom: `calc(100% - ${rect.top - 12}px)` }
+                  : { top: rect.top + rect.height + 12 }),
+                left: 24,
+                animationDelay: `calc(${delay} + 80ms)`,
+              }}
             >
               <p className={s.calloutTitle}>{step.title}</p>
               <p className={s.calloutBody}>{step.body}</p>
