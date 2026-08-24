@@ -14,6 +14,7 @@ import {
   useUserIngredients,
 } from '@/services/ingredient';
 import { getApiErrorMessage } from '@/api';
+import { ROUTES } from '@/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { toCategoryId } from '@/utils/ingredient';
 import OnboardingGuide from './OnboardingGuide';
@@ -124,7 +125,9 @@ const IngredientRegisterPage = () => {
           className={s.backButton}
           type="button"
           aria-label="뒤로 가기"
-          onClick={() => navigate(-1)}
+          // 이 화면이 진입점이라 history 가 비어 있을 수 있다.
+          // navigate(-1) 은 앱 밖으로 나가버리므로 홈으로 고정한다.
+          onClick={() => navigate(ROUTES.HOME)}
         >
           <ArrowLeftIcon aria-hidden />
         </button>

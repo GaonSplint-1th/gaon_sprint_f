@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useDayMenu } from '@/services/menu';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorStatus } from '@/api';
@@ -66,6 +66,12 @@ const HomePage = () => {
     [dayMenu.data?.dishes],
   );
 
+  // 아직 식단이 없으면 앱의 첫 화면인 식재료 등록으로 보낸다.
+  // 여기서 식재료를 등록하고 식단을 만들어 오는 것이 정해진 진입 흐름이다.
+  if (hasNoMenu) {
+    return <Navigate to={ROUTES.INGREDIENT_REGISTER} replace />;
+  }
+
   /** 끼니별 식비 (가격 계산 응답에서 해당 슬롯을 찾는다). */
   const costOf = (mealType: MealType): number | null =>
     price.data?.items.find((item) => item.mealType === mealType)?.cost ?? null;
@@ -103,33 +109,17 @@ const HomePage = () => {
           식사별 메뉴
         </h2>
 
-        {hasNoMenu ? (
-          <>
-            <p className={s.mealDetail}>
-              아직 등록된 식단이 없어요. 보유 식재료를 등록하고 식단을
-              받아보세요.
-            </p>
-            <button
-              type="button"
-              className={s.bottomButton}
-              onClick={() => navigate(ROUTES.INGREDIENT_REGISTER)}
-            >
-              식재료 등록하러 가기
-            </button>
-          </>
-        ) : (
-          <div className={s.mealList} aria-busy={dayMenu.isLoading}>
-            {slots.map(({ mealType, dish }) => (
-              <MenuCard
-                key={mealType}
-                mealType={mealType}
-                dish={dish}
-                cost={costOf(mealType)}
-                onOpenRecipe={(dishId) => navigate(`/recipe/${dishId}`)}
-              />
-            ))}
-          </div>
-        )}
+        <div className={s.mealList} aria-busy={dayMenu.isLoading}>
+          {slots.map(({ mealType, dish }) => (
+            <MenuCard
+              key={mealType}
+              mealType={mealType}
+              dish={dish}
+              cost={costOf(mealType)}
+              onOpenRecipe={(dishId) => navigate(`/recipe/${dishId}`)}
+            />
+          ))}
+        </div>
       </section>
     </div>
   );
