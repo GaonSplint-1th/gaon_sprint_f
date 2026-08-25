@@ -8,14 +8,14 @@ import {
   MealCard,
   PageHeader,
 } from '@/components/common';
-import { useCurrentMenu, useDeleteDish } from '@/services/menu';
+import { useCurrentMenu, useDeleteDish, useRerollDish } from '@/services/menu';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorMessage, getApiErrorStatus } from '@/api';
 import { ROUTES } from '@/constants';
 import { useConfirmedDays } from './useConfirmedDays';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
-import SwipeToDelete from './SwipeToDelete';
+import MealActions from './MealActions';
 import {
   MEAL_LABELS,
   formatCookingTime,
@@ -38,11 +38,11 @@ const MenuEditPage = () => {
   const currentMenu = useCurrentMenu();
   const price = useWeeklyMenuPrice(currentMenu.data?.weeklyMenuId, dayOfWeek);
   const deleteDish = useDeleteDish();
+  const rerollDish = useRerollDish();
   const confirmed = useConfirmedDays(currentMenu.data?.weeklyMenuId);
   const prevDayRef = useRef<HTMLButtonElement>(null);
   const mealsRef = useRef<HTMLDivElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
-  // 처음 들어온 사용자에게 한 번 자동으로 안내를 띄운다.
   const guide = useFirstVisitGuide('menu-edit');
 
   const hasNoMenu = getApiErrorStatus(currentMenu.error) === 404;
@@ -50,7 +50,9 @@ const MenuEditPage = () => {
   const day = currentMenu.data?.days.find((it) => it.dayOfWeek === dayOfWeek);
   const slots = useMemo(() => toMealSlots(day?.dishes), [day?.dishes]);
 
+  // 새로고침은 후보가 떨어지면 409 로 실패한다. 백엔드 메시지를 그대로 보여 준다.
   const onError = (error: unknown) => window.alert(getApiErrorMessage(error));
+  const isEditing = deleteDish.isPending || rerollDish.isPending;
 
   const costOf = (mealType: MealType): number | null =>
     price.data?.items.find((item) => item.mealType === mealType)?.cost ?? null;
@@ -69,7 +71,6 @@ const MenuEditPage = () => {
   const isDayConfirmed = confirmed.has(dayOfWeek);
   const allDone = confirmed.count >= TOTAL_DAYS;
 
-  /** 이 날짜를 확정하고 다음 날로 넘어간다. 다 채우면 홈으로. */
   const confirmDay = () => {
     confirmed.add(dayOfWeek);
     if (confirmed.count + 1 >= TOTAL_DAYS) navigate(ROUTES.HOME);
@@ -85,9 +86,7 @@ const MenuEditPage = () => {
       />
 
       <h2 className={s.planTitle}>{currentMenu.data?.name ?? '식단'}</h2>
-      <p className={s.planDescription}>
-        스크롤하여 메뉴를 확인하고, 옆으로 밀어 삭제할 수 있습니다.
-      </p>
+      <p className={s.planDescription}>스크롤하여 메뉴를 변경할 수 있습니다.</p>
 
       <DateNavigator
         ref={prevDayRef}
@@ -98,16 +97,9 @@ const MenuEditPage = () => {
       <CostBar cost={price.data?.totalCost} isLoading={price.isLoading} />
 
       <div className={s.editScroll} ref={mealsRef}>
-        <div className={s.swipeMeals} aria-busy={currentMenu.isLoading}>
+        <div className={s.editMeals} aria-busy={currentMenu.isLoading}>
           {slots.map(({ mealType, dish }) => (
-            <SwipeToDelete
-              key={mealType}
-              disabled={!dish || deleteDish.isPending}
-              deleteLabel={`${MEAL_LABELS[mealType]} 메뉴 삭제`}
-              onDelete={() =>
-                deleteDish.mutate({ dayOfWeek, mealType }, { onError })
-              }
-            >
+            <div key={mealType} className={s.mealRow}>
               <MealCard
                 time={dish ? MEAL_LABELS[mealType] : '미정'}
                 name={dish?.name ?? '메뉴명'}
@@ -121,7 +113,17 @@ const MenuEditPage = () => {
                   dish ? () => navigate(`/recipe/${dish.dishId}`) : undefined
                 }
               />
-            </SwipeToDelete>
+              <MealActions
+                mealLabel={MEAL_LABELS[mealType]}
+                disabled={!dish || isEditing}
+                onDelete={() =>
+                  deleteDish.mutate({ dayOfWeek, mealType }, { onError })
+                }
+                onChange={() =>
+                  rerollDish.mutate({ dayOfWeek, mealType }, { onError })
+                }
+              />
+            </div>
           ))}
         </div>
       </div>
@@ -147,7 +149,7 @@ const MenuEditPage = () => {
             {
               target: mealsRef,
               title: '식단 수정하기',
-              body: '스크롤하여 식사별 메뉴를 확인하고, 옆으로 스와이프하여 선택 메뉴를 삭제할 수 있습니다.',
+              body: '스크롤하여 식사별 메뉴를 확인하고, 변경을 눌러 다른 메뉴로 바꾸거나 삭제할 수 있습니다.',
               placement: 'inside',
             },
             {
