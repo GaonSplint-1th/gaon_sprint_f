@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 import { flex, font, layout, spacing, theme } from '@/styles';
 
 export const screen = style({
@@ -304,6 +304,13 @@ export const dayMeal = style({
   lineHeight: '16px',
   overflow: 'hidden',
 });
+/** 끼니 이름. 칸을 넘으면 줄바꿈 대신 말줄임으로 자른다. */
+export const dayMealName = style({
+  display: 'block',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
 export const modalPlaceholder = style({
   height: '56px',
   marginBottom: '6px',
@@ -340,24 +347,38 @@ export const skeletonTitleLine = style({
   height: '24px',
   background: theme.neutral[200],
 });
-export const skeletonImage = style({
-  gridColumn: '1 / -1',
-  width: '100%',
-  height: '72px',
-  borderRadius: '8px',
-  background: theme.neutral[200],
+/** 스켈레톤을 훑고 지나가는 빛. */
+const shimmer = keyframes({
+  from: { backgroundPosition: '-160px 0' },
+  to: { backgroundPosition: '240px 0' },
 });
-export const skeletonLine = style({
-  height: '12px',
-  borderRadius: '8px',
-  background: theme.neutral[200],
+/** 스켈레톤 조각 공통. */
+const skeletonPiece = style({
+  background: `linear-gradient(90deg, ${theme.neutral[200]} 0%, ${theme.neutral[50]} 50%, ${theme.neutral[200]} 100%)`,
+  backgroundSize: '400px 100%',
+  backgroundRepeat: 'no-repeat',
+  animation: `${shimmer} 1.2s ease-in-out infinite`,
+  '@media': {
+    '(prefers-reduced-motion: reduce)': { animation: 'none' },
+  },
 });
-export const skeletonSideImage = style({
-  width: '112px',
-  height: '72px',
-  borderRadius: '8px',
-  background: theme.neutral[200],
-});
+export const skeletonImage = style([
+  skeletonPiece,
+  {
+    gridColumn: '1 / -1',
+    width: '100%',
+    height: '72px',
+    borderRadius: '8px',
+  },
+]);
+export const skeletonLine = style([
+  skeletonPiece,
+  { height: '12px', borderRadius: '8px' },
+]);
+export const skeletonSideImage = style([
+  skeletonPiece,
+  { width: '112px', height: '72px', borderRadius: '8px' },
+]);
 
 /* ── 식단 수정 화면 ─────────────────────────────────────────── */
 

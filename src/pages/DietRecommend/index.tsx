@@ -160,7 +160,12 @@ const PreviewModal = ({
                 {toMealSlots(day.dishes).map(({ mealType, dish }) => (
                   <div className={s.dayMeal} key={mealType}>
                     <div className={s.modalPlaceholder} />
-                    {dish?.name ?? `${MEAL_LABELS[mealType]} 미정`}
+                    <span
+                      className={s.dayMealName}
+                      title={dish?.name ?? undefined}
+                    >
+                      {dish?.name ?? `${MEAL_LABELS[mealType]} 미정`}
+                    </span>
                   </div>
                 ))}
               </div>
