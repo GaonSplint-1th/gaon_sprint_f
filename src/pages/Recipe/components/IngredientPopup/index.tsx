@@ -10,7 +10,11 @@ interface IngredientPopupProps {
   onClose: () => void;
 }
 
-const IngredientPopup = ({ recipeName, ingredients, onClose }: IngredientPopupProps) => {
+const IngredientPopup = ({
+  recipeName,
+  ingredients,
+  onClose,
+}: IngredientPopupProps) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -37,7 +41,12 @@ const IngredientPopup = ({ recipeName, ingredients, onClose }: IngredientPopupPr
       >
         <div className={s.header}>
           <p className={s.title}>{recipeName}</p>
-          <button type="button" className={s.closeButton} onClick={onClose} aria-label="닫기">
+          <button
+            type="button"
+            className={s.closeButton}
+            onClick={onClose}
+            aria-label="닫기"
+          >
             <Close size={24} />
           </button>
         </div>
