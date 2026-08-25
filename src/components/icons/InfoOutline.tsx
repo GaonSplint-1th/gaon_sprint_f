@@ -1,7 +1,11 @@
 import { theme } from '@/styles';
 import type { IconProps } from './types';
 
-const InfoOutline = ({ size = 24, color = theme.primary, className }: IconProps) => {
+const InfoOutline = ({
+  size = 24,
+  color = theme.primary,
+  className,
+}: IconProps) => {
   return (
     <svg
       width={size}

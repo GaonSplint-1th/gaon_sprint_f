@@ -1,8 +1,5 @@
 export type ErrorPopupType =
-  | 'API_ERROR'
-  | 'NETWORK_ERROR'
-  | 'SERVER_UNAVAILABLE'
-  | 'UPDATE_REQUIRED';
+  'API_ERROR' | 'NETWORK_ERROR' | 'SERVER_UNAVAILABLE' | 'UPDATE_REQUIRED';
 
 export interface ErrorPopupOptions {
   type: ErrorPopupType;

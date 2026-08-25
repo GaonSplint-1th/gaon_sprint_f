@@ -13,11 +13,13 @@ export const ERROR_POPUP_PRESETS: Record<ErrorPopupType, ErrorPopupPreset> = {
     confirmText: '확인',
   },
   NETWORK_ERROR: {
-    message: '인터넷 연결이 끊어졌습니다.\n연결을 확인한 후 다시 시도해 주세요.',
+    message:
+      '인터넷 연결이 끊어졌습니다.\n연결을 확인한 후 다시 시도해 주세요.',
     confirmText: '확인',
   },
   SERVER_UNAVAILABLE: {
-    message: '서버 점검 중이거나 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요.',
+    message:
+      '서버 점검 중이거나 연결할 수 없습니다.\n잠시 후 다시 시도해 주세요.',
     confirmText: '확인',
   },
   UPDATE_REQUIRED: {

@@ -1,7 +1,11 @@
 import { theme } from '@/styles';
 import type { IconProps } from './types';
 
-const HideImage = ({ size = 24, color = theme.textTertiary, className }: IconProps) => {
+const HideImage = ({
+  size = 24,
+  color = theme.textTertiary,
+  className,
+}: IconProps) => {
   return (
     <svg
       width={size}

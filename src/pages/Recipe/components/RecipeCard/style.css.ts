@@ -1,7 +1,10 @@
 import { style } from '@vanilla-extract/css';
 import { flex, theme } from '@/styles';
 
-export const container = style([flex.COLUMN_FLEX, { gap: '16px', width: '100%' }]);
+export const container = style([
+  flex.COLUMN_FLEX,
+  { gap: '16px', width: '100%' },
+]);
 
 export const imageArea = style([
   flex.COLUMN_CENTER,

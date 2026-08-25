@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useDismissableLayer } from '@/hooks/useDismissableLayer';
 import { createPortal } from 'react-dom';
 import { Close } from '@/components/icons';
 import type { Ingredient } from '@/types/recipe.interface';
@@ -10,21 +10,12 @@ interface IngredientPopupProps {
   onClose: () => void;
 }
 
-const IngredientPopup = ({ recipeName, ingredients, onClose }: IngredientPopupProps) => {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
+const IngredientPopup = ({
+  recipeName,
+  ingredients,
+  onClose,
+}: IngredientPopupProps) => {
+  useDismissableLayer(onClose);
 
   return createPortal(
     <div className={s.overlay} onClick={onClose}>
@@ -37,7 +28,12 @@ const IngredientPopup = ({ recipeName, ingredients, onClose }: IngredientPopupPr
       >
         <div className={s.header}>
           <p className={s.title}>{recipeName}</p>
-          <button type="button" className={s.closeButton} onClick={onClose} aria-label="닫기">
+          <button
+            type="button"
+            className={s.closeButton}
+            onClick={onClose}
+            aria-label="닫기"
+          >
             <Close size={24} />
           </button>
         </div>

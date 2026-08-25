@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, NoteOutline } from '@/components/icons';
+import { Screen } from '@/components/layout';
+import {
+  CostBar,
+  DateNavigator,
+  MealCard,
+  PageHeader,
+} from '@/components/common';
 import { useDayMenu } from '@/services/menu';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorStatus } from '@/api';
@@ -14,45 +20,8 @@ import {
   shiftDayOfWeek,
   toMealSlots,
 } from '@/utils/menu';
-import type { DayOfWeek, MealType, MenuDish } from '@/types';
+import type { DayOfWeek, MealType } from '@/types';
 import * as s from './style.css';
-
-interface MenuCardProps {
-  mealType: MealType;
-  dish: MenuDish | null;
-  cost: number | null;
-  onOpenRecipe: (dishId: number) => void;
-}
-
-const MenuCard = ({ mealType, dish, cost, onOpenRecipe }: MenuCardProps) => {
-  // 조리 시간이 있으면 그 값을, 없으면 계산된 식비를 보조 정보로 보여준다.
-  const detail = dish
-    ? (formatCookingTime(dish.cookingTimeMinutes) ?? formatWon(cost))
-    : '메뉴 없음';
-
-  return (
-    <article className={s.mealCard}>
-      <div className={s.mealInfo}>
-        <h3 className={s.mealTime}>{MEAL_LABELS[mealType]}</h3>
-        <p className={s.mealName}>{dish?.name ?? '미정'}</p>
-        <p className={s.mealDetail}>{detail}</p>
-        <button
-          type="button"
-          className={s.recipeButton}
-          disabled={!dish}
-          onClick={() => dish && onOpenRecipe(dish.dishId)}
-        >
-          레시피보기
-        </button>
-      </div>
-      <div className={s.recipePreview} aria-hidden="true">
-        <span className={s.recipeIcon}>
-          <NoteOutline size={34} color="currentColor" />
-        </span>
-      </div>
-    </article>
-  );
-};
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -80,34 +49,15 @@ const HomePage = () => {
     price.data?.items.find((item) => item.mealType === mealType)?.cost ?? null;
 
   return (
-    <div className={s.screen}>
-      <header className={s.pageTitle}>
-        <h1 className={s.title}>오늘의 식단</h1>
-      </header>
+    <Screen>
+      <PageHeader title="오늘의 식단" />
 
-      <div className={s.dateBar}>
-        <button
-          type="button"
-          className={s.dateArrow}
-          aria-label="이전 날짜"
-          onClick={() => setDayOfWeek((day) => shiftDayOfWeek(day, -1))}
-        >
-          <ArrowLeftIcon />
-        </button>
-        <strong>{formatDayLabel(dayOfWeek)}</strong>
-        <button
-          type="button"
-          className={`${s.dateArrow} ${s.dateArrowNext}`}
-          aria-label="다음 날짜"
-          onClick={() => setDayOfWeek((day) => shiftDayOfWeek(day, 1))}
-        >
-          <ArrowLeftIcon />
-        </button>
-      </div>
-
-      <div className={s.costBar}>
-        {price.isLoading ? '계산 중…' : formatWon(price.data?.totalCost)}
-      </div>
+      <DateNavigator
+        label={formatDayLabel(dayOfWeek)}
+        onPrev={() => setDayOfWeek((day) => shiftDayOfWeek(day, -1))}
+        onNext={() => setDayOfWeek((day) => shiftDayOfWeek(day, 1))}
+      />
+      <CostBar cost={price.data?.totalCost} isLoading={price.isLoading} />
 
       <section className={s.mealSection} aria-labelledby="meal-section-title">
         <h2 id="meal-section-title" className={s.sectionTitle}>
@@ -116,17 +66,25 @@ const HomePage = () => {
 
         <div className={s.mealList} aria-busy={dayMenu.isLoading}>
           {slots.map(({ mealType, dish }) => (
-            <MenuCard
+            <MealCard
               key={mealType}
-              mealType={mealType}
-              dish={dish}
-              cost={costOf(mealType)}
-              onOpenRecipe={(dishId) => navigate(`/recipe/${dishId}`)}
+              time={MEAL_LABELS[mealType]}
+              name={dish?.name ?? '미정'}
+              // 조리 시간이 있으면 그 값을, 없으면 계산된 식비를 보조 정보로 보여준다.
+              detail={
+                dish
+                  ? (formatCookingTime(dish.cookingTimeMinutes) ??
+                    formatWon(costOf(mealType)))
+                  : '메뉴 없음'
+              }
+              onOpenRecipe={
+                dish ? () => navigate(`/recipe/${dish.dishId}`) : undefined
+              }
             />
           ))}
         </div>
       </section>
-    </div>
+    </Screen>
   );
 };
 
