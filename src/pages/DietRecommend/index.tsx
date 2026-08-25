@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, InfoIcon } from '@/components/icons';
+import { ArrowLeftIcon, InfoIcon, MenuStarIcon } from '@/components/icons';
 import { useCreateCurrentMenu } from '@/services/menu';
 import {
   useWeeklyMenuDetail,
@@ -84,7 +84,7 @@ const TemplateCard = ({
       </div>
       <p className={s.ingredients}>
         <span className={s.ingredientIcon} aria-hidden="true">
-          ★
+          <MenuStarIcon width={18} height={18} />
         </span>
         {template.highlight ?? '구성 정보 없음'}
       </p>

@@ -1,6 +1,7 @@
 export { default as ArrowLeftIcon } from './ArrowLeftIcon';
 export { default as CloseIcon } from './CloseIcon';
 export { default as InfoIcon } from './InfoIcon';
+export { default as MenuStarIcon } from './MenuStarIcon';
 export { default as SearchIcon } from './SearchIcon';
 export { default as InfoOutline } from './InfoOutline';
 export { default as BackArrow } from './BackArrow';
