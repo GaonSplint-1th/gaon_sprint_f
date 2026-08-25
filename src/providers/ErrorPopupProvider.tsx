@@ -53,7 +53,6 @@ const ErrorPopupProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
-
   useEffect(() => {
     registerErrorPopupBridge(showError);
     return () => registerErrorPopupBridge(null);

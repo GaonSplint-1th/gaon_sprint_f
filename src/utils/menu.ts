@@ -34,7 +34,6 @@ export const toDayOfWeek = (date: Date): DayOfWeek => {
 /** 오늘 요일 (1=월 ... 7=일). */
 export const getTodayDayOfWeek = (): DayOfWeek => toDayOfWeek(new Date());
 
-
 /** 이번 주(월요일 시작)에서 해당 요일의 실제 날짜를 구한다. */
 export const dateOfDayOfWeek = (
   dayOfWeek: DayOfWeek,
