@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 import { flex, theme } from '@/styles';
 
 /**
@@ -6,11 +6,21 @@ import { flex, theme } from '@/styles';
  * (시안은 프레임이 0.7372 배로 축소돼 있어 실제 px 로 환산해 옮겼다.)
  */
 
+/** 안내가 뜰 때 페이드만. 화면 요소에는 애니메이션을 넣지 않는다. */
+const fadeIn = keyframes({
+  from: { opacity: 0 },
+  to: { opacity: 1 },
+});
+
 export const overlay = style({
   position: 'fixed',
   inset: 0,
   zIndex: 100,
   background: 'rgba(0, 0, 0, 0.77)',
+  animation: `${fadeIn} 200ms ease-out both`,
+  '@media': {
+    '(prefers-reduced-motion: reduce)': { animation: 'none' },
+  },
 });
 
 export const close = style([

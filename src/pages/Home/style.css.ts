@@ -1,4 +1,4 @@
-import { keyframes, style } from '@vanilla-extract/css';
+import { style } from '@vanilla-extract/css';
 import { flex, font, layout, spacing, theme } from '@/styles';
 
 export const screen = style({
@@ -156,21 +156,6 @@ export const recommendList = style([
   flex.COLUMN_FLEX,
   { gap: spacing.md, marginTop: spacing.lg },
 ]);
-/** 움직임 최소화를 켠 사용자에게는 애니메이션을 끈다. */
-const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
-
-/** 목록이 뜰 때 카드가 아래에서 올라온다. */
-const cardRise = keyframes({
-  from: { opacity: 0, transform: 'translateY(10px)' },
-  to: { opacity: 1, transform: 'translateY(0)' },
-});
-
-/** 스켈레톤이 훑고 지나가는 빛. */
-const shimmer = keyframes({
-  from: { backgroundPosition: '-160px 0' },
-  to: { backgroundPosition: '240px 0' },
-});
-
 export const recommendCard = style({
   position: 'relative',
   minHeight: '196px',
@@ -178,15 +163,6 @@ export const recommendCard = style({
   borderRadius: '16px',
   background: theme.surface,
   cursor: 'pointer',
-  // 선택하면 초록으로 물드는 과정을 눈으로 따라갈 수 있게 한다.
-  transition: 'background-color 220ms ease, transform 160ms ease',
-  animation: `${cardRise} 300ms cubic-bezier(.2,.7,.3,1) both`,
-  selectors: {
-    '&:active': { transform: 'scale(.985)' },
-  },
-  '@media': {
-    [REDUCED_MOTION]: { animation: 'none', transition: 'none' },
-  },
 });
 export const selectedCard = style({
   background: theme.primaryScale[600],
@@ -221,7 +197,6 @@ export const ingredientIcon = style({
   flex: 'none',
   marginRight: '6px',
   color: theme.primaryScale[600],
-  transition: 'color 200ms ease',
   selectors: {
     [`${selectedCard} &`]: { color: theme.onPrimary },
   },
@@ -365,33 +340,24 @@ export const skeletonTitleLine = style({
   height: '24px',
   background: theme.neutral[200],
 });
-/** 스켈레톤 조각 공통 — 빛이 훑고 지나간다. */
-const skeletonPiece = style({
-  background: `linear-gradient(90deg, ${theme.neutral[200]} 0%, ${theme.neutral[50]} 50%, ${theme.neutral[200]} 100%)`,
-  backgroundSize: '400px 100%',
-  backgroundRepeat: 'no-repeat',
-  animation: `${shimmer} 1.2s ease-in-out infinite`,
-  '@media': {
-    [REDUCED_MOTION]: { animation: 'none' },
-  },
+export const skeletonImage = style({
+  gridColumn: '1 / -1',
+  width: '100%',
+  height: '72px',
+  borderRadius: '8px',
+  background: theme.neutral[200],
 });
-export const skeletonImage = style([
-  skeletonPiece,
-  {
-    gridColumn: '1 / -1',
-    width: '100%',
-    height: '72px',
-    borderRadius: '8px',
-  },
-]);
-export const skeletonLine = style([
-  skeletonPiece,
-  { height: '12px', borderRadius: '8px' },
-]);
-export const skeletonSideImage = style([
-  skeletonPiece,
-  { width: '112px', height: '72px', borderRadius: '8px' },
-]);
+export const skeletonLine = style({
+  height: '12px',
+  borderRadius: '8px',
+  background: theme.neutral[200],
+});
+export const skeletonSideImage = style({
+  width: '112px',
+  height: '72px',
+  borderRadius: '8px',
+  background: theme.neutral[200],
+});
 
 /* ── 식단 수정 화면 ─────────────────────────────────────────── */
 
