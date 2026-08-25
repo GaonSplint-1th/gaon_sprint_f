@@ -3,7 +3,11 @@ import type { IconProps } from './types';
 /** 원본 뷰박스 비율 (22.887 x 24). */
 const ASPECT_RATIO = 22.887 / 24;
 
-const NoteOutline = ({ size = 24, color = '#1A1A1A', className }: IconProps) => {
+const NoteOutline = ({
+  size = 24,
+  color = '#1A1A1A',
+  className,
+}: IconProps) => {
   return (
     <svg
       width={size * ASPECT_RATIO}

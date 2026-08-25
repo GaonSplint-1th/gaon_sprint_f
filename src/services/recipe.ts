@@ -9,7 +9,8 @@ const MOCK_RECIPE: Omit<Recipe, 'id'> = {
   steps: [
     {
       order: 1,
-      description: '볼에 계란 2개, 우유 50ml, 설탕 1큰술을 넣고 골고루 풀어줍니다.',
+      description:
+        '볼에 계란 2개, 우유 50ml, 설탕 1큰술을 넣고 골고루 풀어줍니다.',
       imageUrl: 'https://picsum.photos/seed/egg-toast-step1/300/300',
     },
     { order: 2, description: '식빵 2장을 계란물에 앞뒤로 충분히 적셔줍니다.' },
@@ -18,10 +19,14 @@ const MOCK_RECIPE: Omit<Recipe, 'id'> = {
       description: '팬을 중약불로 달군 뒤 버터 1작은술을 녹입니다.',
       imageUrl: 'https://picsum.photos/seed/egg-toast-step3/300/300',
     },
-    { order: 4, description: '식빵을 올려 양면이 노릇해질 때까지 2~3분씩 구워줍니다.' },
+    {
+      order: 4,
+      description: '식빵을 올려 양면이 노릇해질 때까지 2~3분씩 구워줍니다.',
+    },
     {
       order: 5,
-      description: '한 김 식힌 뒤 먹기 좋은 크기로 잘라 접시에 담아 완성합니다.',
+      description:
+        '한 김 식힌 뒤 먹기 좋은 크기로 잘라 접시에 담아 완성합니다.',
       imageUrl: 'https://picsum.photos/seed/egg-toast-step5/300/300',
     },
   ],

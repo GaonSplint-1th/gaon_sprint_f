@@ -1,16 +1,8 @@
-import { keyframes, style } from '@vanilla-extract/css';
+import { style } from '@vanilla-extract/css';
 import { flex, theme } from '@/styles';
+import { skeletonPiece } from '@/styles/skeleton.css';
 
-const pulse = keyframes({
-  '0%, 100%': { opacity: 0.5 },
-  '50%': { opacity: 1 },
-});
-
-const block = style({
-  borderRadius: '8px',
-  backgroundColor: theme.neutral[200],
-  animation: `${pulse} 1.4s ease-in-out infinite`,
-});
+const block = style([skeletonPiece, { borderRadius: '8px' }]);
 
 // RecipeCard.imageArea 자리 (185px)
 export const imageArea = style([block, { height: '185px', width: '100%' }]);

@@ -1,5 +1,6 @@
 import { useEffect, useState, type RefObject } from 'react';
 import { CloseIcon } from '@/components/icons';
+import { useDismissableLayer } from '@/hooks/useDismissableLayer';
 import * as s from './style.css';
 
 /** 하이라이트 테두리가 대상보다 바깥으로 물러나는 여백(px). */
@@ -92,21 +93,14 @@ const OnboardingGuide = ({ steps, label, onClose }: OnboardingGuideProps) => {
     measure();
     const raf = requestAnimationFrame(measure);
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
     window.addEventListener('resize', measure);
-    document.addEventListener('keydown', onKeyDown);
     return () => {
       cancelAnimationFrame(raf);
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener('resize', measure);
-      document.removeEventListener('keydown', onKeyDown);
     };
-  }, [steps, onClose]);
+  }, [steps]);
+
+  useDismissableLayer(onClose);
 
   return (
     <div

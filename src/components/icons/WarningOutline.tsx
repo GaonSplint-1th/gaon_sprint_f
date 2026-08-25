@@ -4,7 +4,11 @@ import type { IconProps } from './types';
 /** 원본 레이아웃 비율 (40.526 x 35). */
 const ASPECT_RATIO = 40.526 / 35;
 
-const WarningOutline = ({ size = 35, color = theme.primary, className }: IconProps) => {
+const WarningOutline = ({
+  size = 35,
+  color = theme.primary,
+  className,
+}: IconProps) => {
   return (
     <svg
       width={size * ASPECT_RATIO}

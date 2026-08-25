@@ -1,5 +1,6 @@
-import { keyframes, style } from '@vanilla-extract/css';
+import { style } from '@vanilla-extract/css';
 import { flex, font, layout, spacing, theme } from '@/styles';
+import { skeletonPiece } from '@/styles/skeleton.css';
 
 export const screen = style({
   width: '100%',
@@ -231,21 +232,6 @@ export const skeletonTitleLine = style({
   width: '136px',
   height: '24px',
   background: theme.neutral[200],
-});
-/** 스켈레톤을 훑고 지나가는 빛. */
-const shimmer = keyframes({
-  from: { backgroundPosition: '-160px 0' },
-  to: { backgroundPosition: '240px 0' },
-});
-/** 스켈레톤 조각 공통. */
-const skeletonPiece = style({
-  background: `linear-gradient(90deg, ${theme.neutral[200]} 0%, ${theme.neutral[50]} 50%, ${theme.neutral[200]} 100%)`,
-  backgroundSize: '400px 100%',
-  backgroundRepeat: 'no-repeat',
-  animation: `${shimmer} 1.2s ease-in-out infinite`,
-  '@media': {
-    '(prefers-reduced-motion: reduce)': { animation: 'none' },
-  },
 });
 export const skeletonImage = style([
   skeletonPiece,

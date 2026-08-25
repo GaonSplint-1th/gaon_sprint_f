@@ -1,7 +1,11 @@
 import { theme } from '@/styles';
 import type { IconProps } from './types';
 
-const Close = ({ size = 24, color = theme.onPrimary, className }: IconProps) => {
+const Close = ({
+  size = 24,
+  color = theme.onPrimary,
+  className,
+}: IconProps) => {
   return (
     <svg
       width={size}

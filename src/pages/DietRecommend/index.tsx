@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MenuStarIcon } from '@/components/icons';
 import { Screen } from '@/components/layout';
@@ -10,6 +10,7 @@ import {
 } from '@/services/weeklyMenu';
 import { getApiErrorMessage } from '@/api';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
+import { useDismissableLayer } from '@/hooks/useDismissableLayer';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import {
   MEAL_LABELS,
@@ -112,32 +113,7 @@ const PreviewModal = ({
   const detail = useWeeklyMenuDetail(weeklyMenuId);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const focusable = modalRef.current?.querySelectorAll<HTMLElement>(
-      'button, [tabindex]:not([tabindex="-1"])',
-    );
-    focusable?.[0]?.focus();
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-      if (event.key !== 'Tab' || !focusable?.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener('keydown', keydown);
-    return () => {
-      document.body.style.overflow = previous;
-      document.removeEventListener('keydown', keydown);
-    };
-  }, [onClose]);
+  useDismissableLayer(onClose, { containerRef: modalRef, trapFocus: true });
 
   return (
     <div className={s.modalBackdrop} onClick={onClose}>
