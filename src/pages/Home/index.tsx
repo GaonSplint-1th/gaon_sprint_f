@@ -1,56 +1,131 @@
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { ArrowLeftIcon, NoteOutline } from '@/components/icons';
+import { useDayMenu } from '@/services/menu';
+import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
+import { getApiErrorStatus } from '@/api';
+import { ROUTES } from '@/constants';
+import {
+  MEAL_LABELS,
+  formatCookingTime,
+  formatDayLabel,
+  formatWon,
+  getTodayDayOfWeek,
+  shiftDayOfWeek,
+  toMealSlots,
+} from '@/utils/menu';
+import type { DayOfWeek, MealType, MenuDish } from '@/types';
 import * as s from './style.css';
 
-const meals = [
-  { time: '아침', name: '계란찜', detail: '약 5,800원' },
-  { time: '점심', name: '제육볶음', detail: '조리 25분' },
-  { time: '저녁', name: '김치찌개', detail: '약 5,800원' },
-];
+interface MenuCardProps {
+  mealType: MealType;
+  dish: MenuDish | null;
+  cost: number | null;
+  onOpenRecipe: (dishId: number) => void;
+}
 
-const MenuCard = ({ meal }: { meal: (typeof meals)[number] }) => (
-  <article className={s.mealCard}>
-    <div className={s.mealInfo}>
-      <h3 className={s.mealTime}>{meal.time}</h3>
-      <p className={s.mealName}>{meal.name}</p>
-      <p className={s.mealDetail}>{meal.detail}</p>
-      <button type="button" className={s.recipeButton}>
-        레시피보기
-      </button>
-    </div>
-    <div className={s.recipePreview} aria-hidden="true">
-      <span className={s.recipeIcon} />
-    </div>
-  </article>
-);
+const MenuCard = ({ mealType, dish, cost, onOpenRecipe }: MenuCardProps) => {
+  // 조리 시간이 있으면 그 값을, 없으면 계산된 식비를 보조 정보로 보여준다.
+  const detail = dish
+    ? (formatCookingTime(dish.cookingTimeMinutes) ?? formatWon(cost))
+    : '메뉴 없음';
+
+  return (
+    <article className={s.mealCard}>
+      <div className={s.mealInfo}>
+        <h3 className={s.mealTime}>{MEAL_LABELS[mealType]}</h3>
+        <p className={s.mealName}>{dish?.name ?? '미정'}</p>
+        <p className={s.mealDetail}>{detail}</p>
+        <button
+          type="button"
+          className={s.recipeButton}
+          disabled={!dish}
+          onClick={() => dish && onOpenRecipe(dish.dishId)}
+        >
+          레시피보기
+        </button>
+      </div>
+      <div className={s.recipePreview} aria-hidden="true">
+        <span className={s.recipeIcon}>
+          <NoteOutline size={34} color="currentColor" />
+        </span>
+      </div>
+    </article>
+  );
+};
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek>(getTodayDayOfWeek());
+
+  const dayMenu = useDayMenu(dayOfWeek);
+  const price = useWeeklyMenuPrice(dayMenu.data?.weeklyMenuId, dayOfWeek);
+
+  // 현재 식단이 아직 없으면 백엔드가 404 를 준다 — 에러가 아니라 빈 상태로 다룬다.
+  const hasNoMenu = getApiErrorStatus(dayMenu.error) === 404;
+
+  const slots = useMemo(
+    () => toMealSlots(dayMenu.data?.dishes),
+    [dayMenu.data?.dishes],
+  );
+
+  // 아직 식단이 없으면 앱의 첫 화면인 식재료 등록으로 보낸다.
+  // 여기서 식재료를 등록하고 식단을 만들어 오는 것이 정해진 진입 흐름이다.
+  if (hasNoMenu) {
+    return <Navigate to={ROUTES.INGREDIENT_REGISTER} replace />;
+  }
+
+  /** 끼니별 식비 (가격 계산 응답에서 해당 슬롯을 찾는다). */
+  const costOf = (mealType: MealType): number | null =>
+    price.data?.items.find((item) => item.mealType === mealType)?.cost ?? null;
+
   return (
     <div className={s.screen}>
       <header className={s.pageTitle}>
         <h1 className={s.title}>오늘의 식단</h1>
       </header>
+
       <div className={s.dateBar}>
-        ‹ <strong>7/30(목)</strong> ›
+        <button
+          type="button"
+          className={s.dateArrow}
+          aria-label="이전 날짜"
+          onClick={() => setDayOfWeek((day) => shiftDayOfWeek(day, -1))}
+        >
+          <ArrowLeftIcon />
+        </button>
+        <strong>{formatDayLabel(dayOfWeek)}</strong>
+        <button
+          type="button"
+          className={`${s.dateArrow} ${s.dateArrowNext}`}
+          aria-label="다음 날짜"
+          onClick={() => setDayOfWeek((day) => shiftDayOfWeek(day, 1))}
+        >
+          <ArrowLeftIcon />
+        </button>
       </div>
-      <div className={s.costBar}>17400원</div>
+
+      <div className={s.costBar}>
+        {price.isLoading ? '계산 중…' : formatWon(price.data?.totalCost)}
+      </div>
+
       <section className={s.mealSection} aria-labelledby="meal-section-title">
         <h2 id="meal-section-title" className={s.sectionTitle}>
           식사별 메뉴
         </h2>
-        <div className={s.mealList}>
-          {meals.map((meal) => (
-            <MenuCard key={meal.time} meal={meal} />
+
+        <div className={s.mealList} aria-busy={dayMenu.isLoading}>
+          {slots.map(({ mealType, dish }) => (
+            <MenuCard
+              key={mealType}
+              mealType={mealType}
+              dish={dish}
+              cost={costOf(mealType)}
+              onOpenRecipe={(dishId) => navigate(`/recipe/${dishId}`)}
+            />
           ))}
         </div>
       </section>
-      <button
-        type="button"
-        className={s.bottomButton}
-        onClick={() => navigate('/recommend/loading')}
-      >
-        식단 추천
-      </button>
     </div>
   );
 };
