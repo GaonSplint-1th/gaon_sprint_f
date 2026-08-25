@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import { AppBar, Screen } from '@/components/layout';
 import { useErrorPopup } from '@/hooks/useErrorPopup';
 import type { ErrorPopupType } from '@/types';
 import * as s from './style.css';
@@ -35,16 +37,16 @@ const ERROR_CHECK_ITEMS: ErrorCheckItem[] = [
 ];
 
 const ErrorCheckPage = () => {
+  const navigate = useNavigate();
   const { showError } = useErrorPopup();
 
   return (
-    <div className={s.container}>
-      <div>
-        <h1 className={s.title}>오류 확인</h1>
-        <p className={s.desc}>
-          버튼을 눌러 각 상황에서 뜨는 오류 팝업을 미리 확인할 수 있어요.
-        </p>
-      </div>
+    <Screen>
+      <AppBar title="오류 확인" onBack={() => navigate('/')} />
+
+      <p className={s.desc}>
+        버튼을 눌러 각 상황에서 뜨는 오류 팝업을 미리 확인할 수 있어요.
+      </p>
 
       <ul className={s.list}>
         {ERROR_CHECK_ITEMS.map((item) => (
@@ -63,7 +65,7 @@ const ErrorCheckPage = () => {
           </li>
         ))}
       </ul>
-    </div>
+    </Screen>
   );
 };
 

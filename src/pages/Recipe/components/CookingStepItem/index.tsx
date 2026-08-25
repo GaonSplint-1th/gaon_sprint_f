@@ -1,4 +1,4 @@
-import { NoteOutline } from '@/components/icons';
+import { NoteIcon } from '@/components/icons';
 import type { CookingStep } from '@/types';
 import * as s from './style.css';
 
@@ -15,7 +15,7 @@ const CookingStepItem = ({ step }: CookingStepItemProps) => {
         {step.imageUrl ? (
           <img className={s.photoImage} src={step.imageUrl} alt="" />
         ) : (
-          <NoteOutline size={24} />
+          <NoteIcon />
         )}
       </div>
     </li>

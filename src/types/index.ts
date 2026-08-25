@@ -24,8 +24,6 @@ export type {
 
 /* 식재료 */
 export type {
-  Category,
-  DictionaryItem,
   Ingredient,
   IngredientSearchParams,
   UserIngredient,
@@ -92,10 +90,4 @@ export type {
 export type { ErrorPopupType, ErrorPopupOptions } from './errorPopup.interface';
 
 /* 레시피 */
-export type {
-  Recipe,
-  CookingStep,
-  DishResponse,
-  DishRecipeStepResponse,
-  DishIngredientResponse,
-} from './recipe.interface';
+export type { Recipe, CookingStep } from './recipe.interface';

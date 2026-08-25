@@ -1,177 +1,190 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, CloseIcon, InfoIcon } from '@/components/icons';
-import * as s from '../Home/style.css';
+import { AppBar, Screen } from '@/components/layout';
+import {
+  Button,
+  Modal,
+  RecommendCard,
+  RecommendCardSkeleton,
+} from '@/components/common';
+import { getApiErrorMessage } from '@/api';
+import { useCreateCurrentMenu } from '@/services/menu';
+import {
+  useWeeklyMenuDetail,
+  useWeeklyMenuPrice,
+  useWeeklyMenuTemplates,
+} from '@/services/weeklyMenu';
+import { DAY_LABELS, MEAL_LABELS, MEAL_TYPES } from '@/utils/menu';
+import type { WeeklyMenuSummary } from '@/types';
+import * as s from './style.css';
 
-const Skeleton = ({ done }: { done: () => void }) => {
-  useEffect(() => {
-    const timer = window.setTimeout(done, 900);
-    return () => window.clearTimeout(timer);
-  }, [done]);
+const SKELETON_COUNT = 3;
+
+const formatWon = (value: number) =>
+  `예상 ${Math.round(value).toLocaleString()}원`;
+
+interface TemplateCardProps {
+  template: WeeklyMenuSummary;
+  selected: boolean;
+  onSelect: () => void;
+  onPreview: () => void;
+}
+
+/**
+ * 템플릿 한 장.
+ * 가격은 템플릿 목록에 없고 계산 API 를 따로 불러야 해서 카드마다 조회한다.
+ */
+const TemplateCard = ({
+  template,
+  selected,
+  onSelect,
+  onPreview,
+}: TemplateCardProps) => {
+  const { data: price } = useWeeklyMenuPrice(template.weeklyMenuId);
+
   return (
-    <div
-      className={s.screen}
-      aria-busy="true"
-      aria-label="식단 추천을 불러오는 중"
+    <RecommendCard
+      name={template.name}
+      price={price ? formatWon(price.totalCost) : '가격 계산 중'}
+      menus={template.highlight ?? ''}
+      thumbnailUrls={[template.imageUrl ?? undefined]}
+      selected={selected}
+      onSelect={onSelect}
+      onPreview={onPreview}
+    />
+  );
+};
+
+interface PreviewProps {
+  template: WeeklyMenuSummary;
+  onClose: () => void;
+}
+
+/** 미리보기 — 템플릿 상세를 요일별로 보여준다. */
+const PreviewModal = ({ template, onClose }: PreviewProps) => {
+  const { data: detail, isLoading } = useWeeklyMenuDetail(
+    template.weeklyMenuId,
+  );
+
+  return (
+    <Modal
+      title={template.name}
+      onClose={onClose}
+      footer={
+        <Button size="half" onClick={onClose}>
+          닫기
+        </Button>
+      }
     >
-      <div className={s.skeletonTitle}>
-        <span className={s.skeletonCircle} />
-        <span className={s.skeletonTitleLine} />
-      </div>
-      {[1, 2, 3].map((item) => (
-        <div className={s.skeletonCard} key={item}>
-          <span className={s.skeletonImage} />
-          <span className={s.skeletonLine} />
-          <span className={s.skeletonSideImage} />
+      {isLoading && <p className={s.message}>불러오는 중이에요…</p>}
+
+      {detail && (
+        <div className={s.dayList}>
+          {detail.days.map((day) => {
+            const dishByMeal = new Map(
+              day.dishes.map((dish) => [dish.mealType, dish]),
+            );
+            return (
+              <section className={s.day} key={day.dayOfWeek}>
+                <h3 className={s.dayLabel}>{DAY_LABELS[day.dayOfWeek]}요일</h3>
+                <div className={s.dayMeals}>
+                  {MEAL_TYPES.map((mealType) => (
+                    <div className={s.dayMeal} key={mealType}>
+                      <div className={s.dayMealThumbnail} />
+                      {dishByMeal.get(mealType)?.name ??
+                        `${MEAL_LABELS[mealType]}메뉴`}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
-      ))}
-    </div>
+      )}
+    </Modal>
   );
 };
 
 const DietRecommendPage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(0);
-  const [preview, setPreview] = useState(false);
-  const modalRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!preview) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const modal = modalRef.current;
-    const focusable = modal?.querySelectorAll<HTMLElement>(
-      'button, [tabindex]:not([tabindex="-1"])',
-    );
-    focusable?.[0]?.focus();
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setPreview(false);
-      if (event.key !== 'Tab' || !focusable?.length) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener('keydown', keydown);
-    return () => {
-      document.body.style.overflow = previous;
-      document.removeEventListener('keydown', keydown);
-    };
-  }, [preview]);
-  if (loading) return <Skeleton done={() => setLoading(false)} />;
+
+  // 세션 대기 중에는 쿼리가 비활성이라 isLoading 이 false 다. isPending 으로 스켈레톤을 유지한다.
+  const { data, isPending, isError, error } = useWeeklyMenuTemplates();
+  const createCurrentMenu = useCreateCurrentMenu();
+
+  // 시안 05: 처음에는 아무 카드도 선택돼 있지 않고 하단 버튼도 비활성이다.
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [previewTemplate, setPreviewTemplate] =
+    useState<WeeklyMenuSummary | null>(null);
+
+  const templates = data?.items ?? [];
+
+  /** 고른 템플릿을 내 식단으로 등록한 뒤 수정 화면으로 넘어간다. */
+  const confirm = async () => {
+    if (selectedId == null) return;
+    await createCurrentMenu.mutateAsync({ weeklyMenuId: selectedId });
+    navigate('/edit');
+  };
+
   return (
-    <div className={s.screen}>
-      <header className={s.pageTitle}>
-        <button
-          type="button"
-          className={s.backButton}
-          onClick={() => navigate('/')}
-          aria-label="뒤로가기"
+    <Screen
+      bottomCta={
+        <Button
+          disabled={
+            isPending || selectedId == null || createCurrentMenu.isPending
+          }
+          onClick={() => void confirm()}
         >
-          <ArrowLeftIcon />
-        </button>
-        <h1 className={s.title}>식단 추천</h1>
-        <span className={s.infoIcon} aria-label="식단 추천 안내">
-          <InfoIcon />
-        </span>
-      </header>
-      <div className={s.recommendList}>
-        {[0, 1, 2].map((item) => (
-          <article
-            key={item}
-            className={`${s.recommendCard} ${selected === item ? s.selectedCard : ''}`}
-            onClick={() => setSelected(item)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                setSelected(item);
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-pressed={selected === item}
-          >
-            <div className={s.recommendTop}>
-              <strong>육류 위주 A</strong>
-              <span>예상 118,000원</span>
-            </div>
-            <div className={s.imageRow}>
-              {[1, 2, 3].map((image) => (
-                <div className={s.placeholder} key={image}>
-                  이미지
-                </div>
-              ))}
-            </div>
-            <p className={s.ingredients}>
-              <span className={s.ingredientIcon} aria-hidden="true">
-                ★
-              </span>
-              제육볶음 · 김치찌개 · 계란찜
-            </p>
-            <button
-              type="button"
-              className={s.previewButton}
-              onClick={(event) => {
-                event.stopPropagation();
-                setPreview(true);
-              }}
-            >
-              미리보기 ›
-            </button>
-          </article>
-        ))}
-      </div>
-      <button
-        type="button"
-        className={s.bottomButton}
-        onClick={() => navigate('/edit')}
-      >
-        메뉴 수정하기
-      </button>
-      {preview && (
-        <div className={s.modalBackdrop} onClick={() => setPreview(false)}>
-          <div
-            ref={modalRef}
-            className={s.previewModal}
-            role="dialog"
-            aria-modal="true"
-            aria-label="식단 미리보기"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className={s.modalHeader}>
-              <strong>육류 위주 A</strong>
-              <button
-                type="button"
-                aria-label="미리보기 닫기"
-                onClick={() => setPreview(false)}
-              >
-                <CloseIcon />
-              </button>
-            </div>
-            <div className={s.modalBody}>
-              {[1, 2, 3].map((day) => (
-                <div key={day}>
-                  <p>월/일(요일)</p>
-                  <div className={s.dayMeals}>
-                    {['아침메뉴', '점심메뉴', '저녁메뉴'].map((meal) => (
-                      <div className={s.dayMeal} key={meal}>
-                        <div className={s.modalPlaceholder} />
-                        {meal}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          메뉴 수정하기
+        </Button>
+      }
+    >
+      <AppBar
+        title="식단 추천"
+        onBack={() => navigate('/')}
+        onInfo={() => undefined}
+      />
+
+      {isPending && !isError && (
+        <div
+          className={s.cardList}
+          aria-busy="true"
+          aria-label="식단 추천을 불러오는 중"
+        >
+          {Array.from({ length: SKELETON_COUNT }, (_, index) => (
+            <RecommendCardSkeleton key={index} />
+          ))}
         </div>
       )}
-    </div>
+
+      {isError && <p className={s.message}>{getApiErrorMessage(error)}</p>}
+
+      {!isPending && !isError && templates.length === 0 && (
+        <p className={s.message}>추천할 수 있는 식단이 아직 없어요.</p>
+      )}
+
+      {!isPending && !isError && templates.length > 0 && (
+        <div className={s.cardList}>
+          {templates.map((template) => (
+            <TemplateCard
+              key={template.weeklyMenuId}
+              template={template}
+              selected={selectedId === template.weeklyMenuId}
+              onSelect={() => setSelectedId(template.weeklyMenuId)}
+              onPreview={() => setPreviewTemplate(template)}
+            />
+          ))}
+        </div>
+      )}
+
+      {previewTemplate && (
+        <PreviewModal
+          template={previewTemplate}
+          onClose={() => setPreviewTemplate(null)}
+        />
+      )}
+    </Screen>
   );
 };
+
 export default DietRecommendPage;

@@ -1,11 +1,11 @@
 export { default as ArrowLeftIcon } from './ArrowLeftIcon';
+export { default as ChevronLeftIcon } from './ChevronLeftIcon';
+export { default as ChevronRightIcon } from './ChevronRightIcon';
 export { default as CloseIcon } from './CloseIcon';
 export { default as InfoIcon } from './InfoIcon';
 export { default as SearchIcon } from './SearchIcon';
-export { default as InfoOutline } from './InfoOutline';
-export { default as BackArrow } from './BackArrow';
-export { default as NoteOutline } from './NoteOutline';
-export { default as Close } from './Close';
-export { default as HideImage } from './HideImage';
-export { default as WarningOutline } from './WarningOutline';
+export { default as NoteIcon } from './NoteIcon';
+export { default as HideImageIcon } from './HideImageIcon';
+export { default as WarningIcon } from './WarningIcon';
+export { default as StarIcon } from './StarIcon';
 export type { IconProps } from './types';

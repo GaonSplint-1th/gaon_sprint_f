@@ -1,22 +1,25 @@
-import type { SVGProps } from 'react';
+import type { IconProps } from './types';
 
-const InfoIcon = (props: SVGProps<SVGSVGElement>) => (
+/** 안내 (i). */
+const InfoIcon = ({
+  size = 24,
+  color = 'currentColor',
+  className,
+}: IconProps) => (
   <svg
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
     fill="none"
+    className={className}
     aria-hidden="true"
-    {...props}
+    focusable="false"
   >
-    <circle cx="10" cy="10" r="8.5" stroke="currentColor" strokeWidth="1.5" />
     <path
-      d="M10 9v5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
+      d="M11 7H13V9H11V7ZM11 11H13V17H11V11ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z"
+      fill={color}
     />
-    <circle cx="10" cy="6" r=".8" fill="currentColor" />
   </svg>
 );
+
 export default InfoIcon;

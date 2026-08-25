@@ -1,98 +1,157 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon } from '@/components/icons';
-import * as s from '../Home/style.css';
+import { AppBar, Screen } from '@/components/layout';
+import {
+  Button,
+  DateNavigator,
+  MealCard,
+  MealCardSkeleton,
+} from '@/components/common';
+import { useDateNavigation } from '@/hooks/useDateNavigation';
+import { useCurrentMenu, useUpdateDish } from '@/services/menu';
+import { useDishes } from '@/services/dish';
+import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
+import { MEAL_LABELS, MEAL_TYPES, toDayOfWeek } from '@/utils/menu';
+import type { DishSummary, MealType, MenuDish } from '@/types';
+import * as s from './style.css';
 
-const options = [
-  ['계란찜', '오트밀'],
-  ['제육볶음', '닭가슴살'],
-  ['김치찌개', '된장찌개'],
-];
+/** 한 주 7일 — 확정 진행도 표시에 쓴다. */
+const TOTAL_DAYS = 7;
+/** 메뉴 교체 후보로 함께 보여줄 요리 수. */
+const CANDIDATE_SIZE = 10;
+
+const formatWon = (value: number) => `${Math.round(value).toLocaleString()}원`;
 
 const MenuEditPage = () => {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState([0, 0, 0]);
-  const changedCount = useMemo(
-    () => selected.filter((value) => value !== 0).length,
-    [selected],
+  const { date, label, goPrev, goNext } = useDateNavigation();
+  const dayOfWeek = toDayOfWeek(date);
+
+  // 세션 대기 중에는 쿼리가 비활성이라 isLoading 이 false 다. isPending 으로 스켈레톤을 유지한다.
+  const { data: menu, isPending } = useCurrentMenu();
+  const { data: candidates } = useDishes({
+    size: CANDIDATE_SIZE,
+    activeOnly: true,
+  });
+  const { data: price } = useWeeklyMenuPrice(menu?.weeklyMenuId, dayOfWeek);
+  const updateDish = useUpdateDish();
+
+  /** 이번 세션에서 손댄 요일 (확정 진행도 표시용). */
+  const [editedDays, setEditedDays] = useState<Set<number>>(new Set());
+
+  const day = menu?.days.find((item) => item.dayOfWeek === dayOfWeek);
+  const dishByMeal = new Map<MealType, MenuDish>(
+    day?.dishes.map((dish) => [dish.mealType, dish]),
   );
+  const costByDish = new Map(
+    price?.items.map((item) => [item.dishId, item.cost]),
+  );
+
+  /** 현재 메뉴를 뺀 교체 후보들. 현재 메뉴는 칩 맨 앞에 따로 그린다. */
+  const buildOptions = (current: MenuDish | undefined): DishSummary[] =>
+    (candidates?.items ?? []).filter((dish) => dish.dishId !== current?.dishId);
+
+  const replace = (mealType: MealType, dishId: number) => {
+    updateDish.mutate({ dayOfWeek, mealType, dishId });
+    setEditedDays((previous) => new Set(previous).add(dayOfWeek));
+  };
+
   return (
-    <div className={s.screen}>
-      <header className={s.pageTitle}>
-        <button
-          type="button"
-          className={s.backButton}
-          onClick={() => navigate('/recommend')}
-          aria-label="뒤로가기"
+    <Screen
+      bottomCta={
+        <Button
+          disabled={editedDays.size === 0 || updateDish.isPending}
+          onClick={() => navigate('/')}
         >
-          <ArrowLeftIcon />
-        </button>
-        <h1 className={s.title}>식단 수정</h1>
-        <span className={s.infoIcon}>i</span>
-      </header>
-      <h2 className={s.planTitle}>육류 위주 A</h2>
-      <p className={s.planDescription}>
-        좌우로 밀어 메뉴를 변경할 수 있습니다.
-      </p>
-      <div className={s.dateBar}>
-        ‹ <strong>7/30(목)</strong> ›
+          확정하기({editedDays.size}/{TOTAL_DAYS})
+        </Button>
+      }
+    >
+      <AppBar
+        title="식단 수정"
+        onBack={() => navigate('/recommend')}
+        onInfo={() => undefined}
+      />
+
+      <div>
+        <h2 className={s.planTitle}>{menu?.name ?? '식단'}</h2>
+        <p className={s.planDescription}>
+          좌우로 밀어 메뉴를 변경할 수 있습니다.
+        </p>
       </div>
-      <div className={s.costBar}>17400원</div>
-      <div className={s.editScroll}>
-        <div className={s.swipeMeals}>
-          {options.map((mealOptions, mealIndex) => (
-            <article className={s.mealCard} key={mealIndex}>
-              <div className={s.mealInfo}>
-                <h3 className={s.mealTime}>
-                  {['아침', '점심', '저녁'][mealIndex]}
-                </h3>
-                <div
-                  className={s.menuSwipe}
-                  tabIndex={0}
-                  aria-label="메뉴 선택"
-                >
-                  <div className={s.menuSwipeTrack}>
-                    {mealOptions.map((menu, optionIndex) => (
-                      <button
-                        type="button"
-                        className={`${s.menuOption} ${selected[mealIndex] === optionIndex ? s.activeMenuOption : ''}`}
-                        onClick={() =>
-                          setSelected((current) =>
-                            current.map((value, index) =>
-                              index === mealIndex ? optionIndex : value,
-                            ),
-                          )
-                        }
-                        key={menu}
-                      >
-                        {menu}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <p className={s.mealDetail}>
-                  {mealIndex === 1 ? '조리 25분' : '약 5,800원'}
-                </p>
-                <button type="button" className={s.recipeButton}>
-                  레시피보기
-                </button>
-              </div>
-              <div className={s.recipePreview} aria-hidden="true">
-                <span className={s.recipeIcon} />
-              </div>
-            </article>
+
+      <DateNavigator label={label} onPrev={goPrev} onNext={goNext} />
+      {price && <p className={s.costBar}>{formatWon(price.totalCost)}</p>}
+
+      {isPending ? (
+        <div
+          className={s.mealList}
+          aria-busy="true"
+          aria-label="식단을 불러오는 중"
+        >
+          {MEAL_TYPES.map((mealType) => (
+            <MealCardSkeleton key={mealType} />
           ))}
         </div>
-      </div>
-      <button
-        type="button"
-        className={`${s.bottomButton} ${changedCount === 0 ? s.disabledButton : ''}`}
-        disabled={changedCount === 0}
-        onClick={() => window.alert('식단이 확정되었습니다.')}
-      >
-        확정하기({changedCount}/7)
-      </button>
-    </div>
+      ) : (
+        <div className={s.mealList}>
+          {MEAL_TYPES.map((mealType) => {
+            const current = dishByMeal.get(mealType);
+            const cost = current && costByDish.get(current.dishId);
+
+            return (
+              <MealCard
+                key={mealType}
+                time={MEAL_LABELS[mealType]}
+                detail={
+                  cost != null
+                    ? `약 ${formatWon(cost)}`
+                    : current?.cookingTimeMinutes != null
+                      ? `조리 ${current.cookingTimeMinutes}분`
+                      : ''
+                }
+                onRecipeClick={
+                  current
+                    ? () => navigate(`/recipe/${current.dishId}`)
+                    : undefined
+                }
+                name={
+                  <div
+                    className={s.menuSwipe}
+                    role="group"
+                    aria-label={`${MEAL_LABELS[mealType]} 메뉴 선택`}
+                  >
+                    <div className={s.menuSwipeTrack}>
+                      {current && (
+                        <button
+                          type="button"
+                          className={`${s.menuOption} ${s.menuOptionActive}`}
+                          aria-pressed
+                        >
+                          {current.name}
+                        </button>
+                      )}
+                      {buildOptions(current).map((dish) => (
+                        <button
+                          key={dish.dishId}
+                          type="button"
+                          className={s.menuOption}
+                          aria-pressed={false}
+                          onClick={() => replace(mealType, dish.dishId)}
+                        >
+                          {dish.dishName}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                }
+              />
+            );
+          })}
+        </div>
+      )}
+    </Screen>
   );
 };
+
 export default MenuEditPage;

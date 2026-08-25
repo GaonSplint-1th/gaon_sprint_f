@@ -1,6 +1,6 @@
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { WarningOutline } from '@/components/icons';
+import { WarningIcon } from '@/components/icons';
 import * as s from './style.css';
 
 interface ErrorPopupProps {
@@ -72,7 +72,7 @@ const ErrorPopup = ({
         onKeyDown={handleKeyDown}
       >
         <div className={s.content}>
-          <WarningOutline size={35} />
+          <WarningIcon size={35} />
           <p id="error-popup-message" className={s.message}>
             {message}
           </p>

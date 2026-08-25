@@ -1,32 +1,32 @@
+import { Skeleton } from '@/components/common';
 import * as s from './style.css';
 
-const PLACEHOLDER_STEP_IDS = [1, 2] as const;
+const PLACEHOLDER_STEP_COUNT = 2;
 
-const RecipeSkeleton = () => {
-  return (
-    <>
-      <div className={s.imageArea} />
+/** RecipeCard + CookingStepList 와 같은 자리·같은 크기를 차지하는 로딩 상태. */
+const RecipeSkeleton = () => (
+  <>
+    <Skeleton variant="image" width="100%" height={185} />
 
-      <div className={s.header}>
-        <div className={s.nameBar} />
-        <div className={s.buttonBar} />
-      </div>
+    <div className={s.header}>
+      <Skeleton width={112} height={24} />
+      <Skeleton width={64} height={24} />
+    </div>
 
-      <div className={s.sectionTitleBar} />
+    <Skeleton width={88} height={24} />
 
-      <ol className={s.list}>
-        {PLACEHOLDER_STEP_IDS.map((id) => (
-          <li key={id} className={s.item}>
-            <div className={s.textGroup}>
-              <div className={s.textLine} />
-              <div className={s.textLineShort} />
-            </div>
-            <div className={s.photo} />
-          </li>
-        ))}
-      </ol>
-    </>
-  );
-};
+    <ol className={s.list}>
+      {Array.from({ length: PLACEHOLDER_STEP_COUNT }, (_, index) => (
+        <li key={index} className={s.item}>
+          <div className={s.textGroup}>
+            <Skeleton width="100%" height={16} />
+            <Skeleton width="60%" height={16} />
+          </div>
+          <Skeleton variant="image" width={102} height={102} />
+        </li>
+      ))}
+    </ol>
+  </>
+);
 
 export default RecipeSkeleton;

@@ -5,3 +5,4 @@ export { default as screen } from './screen';
 export { default as spacing } from './spacing';
 export { default as elevation } from './elevation';
 export { default as layout } from './layout';
+export { default as radius } from './radius';

@@ -1,57 +1,113 @@
 import { useNavigate } from 'react-router-dom';
+import { AppBar, Screen } from '@/components/layout';
+import {
+  Button,
+  DateNavigator,
+  MealCard,
+  MealCardSkeleton,
+} from '@/components/common';
+import { getApiErrorStatus } from '@/api';
+import { useDateNavigation } from '@/hooks/useDateNavigation';
+import { useCurrentMenu } from '@/services/menu';
+import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
+import { MEAL_LABELS, MEAL_TYPES, toDayOfWeek } from '@/utils/menu';
+import type { MealType, MenuDish } from '@/types';
 import * as s from './style.css';
 
-const meals = [
-  { time: '아침', name: '계란찜', detail: '약 5,800원' },
-  { time: '점심', name: '제육볶음', detail: '조리 25분' },
-  { time: '저녁', name: '김치찌개', detail: '약 5,800원' },
-];
+const formatWon = (value: number) => `${Math.round(value).toLocaleString()}원`;
 
-const MenuCard = ({ meal }: { meal: (typeof meals)[number] }) => (
-  <article className={s.mealCard}>
-    <div className={s.mealInfo}>
-      <h3 className={s.mealTime}>{meal.time}</h3>
-      <p className={s.mealName}>{meal.name}</p>
-      <p className={s.mealDetail}>{meal.detail}</p>
-      <button type="button" className={s.recipeButton}>
-        레시피보기
-      </button>
-    </div>
-    <div className={s.recipePreview} aria-hidden="true">
-      <span className={s.recipeIcon} />
-    </div>
-  </article>
-);
+/** 끼니 아래 보조 문구 — 가격이 계산되면 가격, 없으면 조리 시간. */
+const buildDetail = (dish: MenuDish, cost?: number) => {
+  if (cost != null) return `약 ${formatWon(cost)}`;
+  if (dish.cookingTimeMinutes != null)
+    return `조리 ${dish.cookingTimeMinutes}분`;
+  return '';
+};
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { date, label, goPrev, goNext } = useDateNavigation();
+  const dayOfWeek = toDayOfWeek(date);
+
+  // 세션 대기 중에는 쿼리가 비활성이라 isLoading 이 false 다. 데이터 유무를 뜻하는 isPending 을 쓴다.
+  const { data: menu, isPending, isError, error } = useCurrentMenu();
+  // 아직 식단을 안 만든 사용자는 404 가 온다 (에러가 아니라 빈 상태).
+  const hasNoMenu = isError && getApiErrorStatus(error) === 404;
+
+  const { data: price } = useWeeklyMenuPrice(menu?.weeklyMenuId, dayOfWeek);
+
+  const day = menu?.days.find((item) => item.dayOfWeek === dayOfWeek);
+  const dishByMeal = new Map<MealType, MenuDish>(
+    day?.dishes.map((dish) => [dish.mealType, dish]),
+  );
+  const costByDish = new Map(
+    price?.items.map((item) => [item.dishId, item.cost]),
+  );
+
   return (
-    <div className={s.screen}>
-      <header className={s.pageTitle}>
-        <h1 className={s.title}>오늘의 식단</h1>
-      </header>
-      <div className={s.dateBar}>
-        ‹ <strong>7/30(목)</strong> ›
-      </div>
-      <div className={s.costBar}>17400원</div>
-      <section className={s.mealSection} aria-labelledby="meal-section-title">
+    <Screen
+      bottomCta={
+        <Button onClick={() => navigate('/recommend')}>
+          {hasNoMenu ? '식단 만들기' : '식단 추천'}
+        </Button>
+      }
+    >
+      <AppBar title="오늘의 식단" />
+
+      <DateNavigator label={label} onPrev={goPrev} onNext={goNext} />
+      {price && <p className={s.costBar}>{formatWon(price.totalCost)}</p>}
+
+      <section className={s.section} aria-labelledby="meal-section-title">
         <h2 id="meal-section-title" className={s.sectionTitle}>
           식사별 메뉴
         </h2>
-        <div className={s.mealList}>
-          {meals.map((meal) => (
-            <MenuCard key={meal.time} meal={meal} />
-          ))}
-        </div>
+
+        {isPending && !isError && (
+          <div
+            className={s.mealList}
+            aria-busy="true"
+            aria-label="식단을 불러오는 중"
+          >
+            {MEAL_TYPES.map((mealType) => (
+              <MealCardSkeleton key={mealType} />
+            ))}
+          </div>
+        )}
+
+        {hasNoMenu && (
+          <p className={s.message}>
+            아직 식단이 없어요. 아래에서 식단을 만들어 보세요.
+          </p>
+        )}
+
+        {!isPending && !isError && (
+          <div className={s.mealList}>
+            {MEAL_TYPES.map((mealType) => {
+              const dish = dishByMeal.get(mealType);
+              if (!dish) {
+                return (
+                  <MealCard
+                    key={mealType}
+                    time={MEAL_LABELS[mealType]}
+                    name="메뉴가 비어 있어요"
+                    detail=""
+                  />
+                );
+              }
+              return (
+                <MealCard
+                  key={mealType}
+                  time={MEAL_LABELS[mealType]}
+                  name={dish.name}
+                  detail={buildDetail(dish, costByDish.get(dish.dishId))}
+                  onRecipeClick={() => navigate(`/recipe/${dish.dishId}`)}
+                />
+              );
+            })}
+          </div>
+        )}
       </section>
-      <button
-        type="button"
-        className={s.bottomButton}
-        onClick={() => navigate('/recommend/loading')}
-      >
-        식단 추천
-      </button>
-    </div>
+    </Screen>
   );
 };
 

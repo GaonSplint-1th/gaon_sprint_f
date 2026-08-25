@@ -1,5 +1,3 @@
-export { CATEGORIES, DICTIONARY } from './ingredient.mock';
-
 export {
   searchIngredients,
   getIngredient,

@@ -4,7 +4,8 @@ import theme from './theme';
 export const pretendard = 'Pretendard';
 
 globalFontFace(pretendard, {
-  src: 'url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2") format("woff2-variations")',
+  // gh(레포) 경로는 해당 태그에 dist 가 없어 404 → npm 경로를 사용한다.
+  src: 'url("https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/woff2/PretendardVariable.woff2") format("woff2-variations")',
   fontWeight: '45 920',
   fontStyle: 'normal',
   fontDisplay: 'swap',

@@ -19,10 +19,9 @@ export const router = createBrowserRouter([
       { path: 'recommend', element: <DietRecommendPage /> },
       { path: 'recommend/loading', element: <DietRecommendPage /> },
       { path: 'edit', element: <MenuEditPage /> },
+      { path: ROUTES.INGREDIENT_REGISTER, element: <IngredientRegisterPage /> },
+      { path: ROUTES.ERROR_CHECK, element: <ErrorCheckPage /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
-  // 자체 앱바를 가진 모바일 전용 화면 (RootLayout 미적용)
-  { path: ROUTES.INGREDIENT_REGISTER, element: <IngredientRegisterPage /> },
-  { path: ROUTES.ERROR_CHECK, element: <ErrorCheckPage /> },
-  { path: '*', element: <NotFoundPage /> },
 ]);

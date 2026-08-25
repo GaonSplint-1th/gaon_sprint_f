@@ -76,10 +76,13 @@ src/
 ├─ services/      # 도메인별 API 로직
 │  └─ coupang/    #   coupang.api / .query / .mutation
 ├─ components/    # 재사용 컴포넌트
-│  └─ layout/     #   RootLayout 등 레이아웃
+│  ├─ common/     #   Button, MealCard, Modal, Skeleton ... (공용 UI)
+│  ├─ layout/     #   Screen, AppBar, RootLayout
+│  └─ icons/      #   SVG 아이콘 (IconProps 공통 규격)
+├─ hooks/         # 공용 훅
 ├─ pages/         # 라우트 단위 페이지 (index.tsx + style.css.ts)
 ├─ router/        # createBrowserRouter 설정
-└─ styles/        # theme / font / flex / screen / global
+└─ styles/        # theme / font / flex / spacing / radius / layout / screen / global
 ```
 
 ### 경로 별칭
@@ -113,19 +116,70 @@ const HomePage = () => <h1 className={s.title}>제목</h1>;
 import { style } from '@vanilla-extract/css';
 import { theme, font } from '@/styles';
 
-export const title = style([font.H1, { color: theme.text }]);
+export const title = style([font.titleSmall, { color: theme.textPrimary }]);
 ```
 
 ### 디자인 토큰 (`@/styles`)
 
-전역 토큰을 조합해서 사용합니다. 색상·폰트는 직접 값을 쓰지 말고 아래 토큰을 쓰세요.
+전역 토큰을 조합해서 사용합니다. **색상·폰트·간격·모서리는 직접 값을 쓰지 말고 아래 토큰을 쓰세요.**
+토큰 값이 디자인과 안 맞으면 화면에서 덮어쓰지 말고 `src/styles/` 에서 토큰 자체를 고칩니다.
 
-| 토큰     | 용도       | 예시                                        |
-| -------- | ---------- | ------------------------------------------- |
-| `theme`  | 색상       | `theme.primary`, `theme.text`, `theme.border` |
-| `font`   | 폰트 프리셋 | `font.H1`~`font.H6`, `font.p1`~`font.p4`, `font.btn1`~ |
-| `flex`   | flex 레이아웃 | `flex.CENTER`, `flex.BETWEEN`, `flex.COLUMN_FLEX` |
-| `screen` | 반응형 breakpoint | `screen.phone`, `screen.tablet` |
+| 토큰       | 용도              | 예시                                                    |
+| ---------- | ----------------- | ------------------------------------------------------- |
+| `theme`    | 색상              | `theme.primary`, `theme.textPrimary`, `theme.border`    |
+| `font`     | 폰트 프리셋       | `font.titleMedium`, `font.bodyLarge`, `font.label`      |
+| `flex`     | flex 레이아웃     | `flex.CENTER`, `flex.BETWEEN`, `flex.COLUMN_FLEX`       |
+| `spacing`  | 간격 (4/8/16/24/32) | `spacing.sm`, `spacing.md`, `spacing.lg`              |
+| `radius`   | 모서리 반경       | `radius.sm`(8), `radius.lg`(16), `radius.full`          |
+| `layout`   | 프레임·컴포넌트 크기 | `layout.contentWidth`(361), `layout.size.button`(48) |
+| `screen`   | 반응형 breakpoint | `screen.phone`, `screen.tablet`                         |
+
+#### 타이포그래피 스케일
+
+393 x 852 모바일 프레임 기준으로 디자이너 컴포넌트에서 실측한 값입니다.
+
+| 토큰 | 값 | 쓰는 곳 |
+| --- | --- | --- |
+| `titleLarge` | 24/32 600 | 모달 제목 |
+| `titleMedium` | 20/28 600 | 앱바 제목, 날짜 바 |
+| `titleSmall` | 18/24 600 | 카드·섹션 제목 |
+| `bodyLarge` / `bodyStrong` | 16/24 400 / 600 | 본문 |
+| `bodySmall` | 14/20 400 | 보조 본문 |
+| `label` / `labelSmall` | 18/24 600 / 14/20 600 | 버튼, 인라인 링크 |
+| `caption` / `captionStrong` | 12/16 500 / 600 | 캡션·도움말 |
+
+### 공용 컴포넌트
+
+화면마다 앱바·버튼·카드를 새로 만들면 화면끼리 크기가 어긋납니다.
+아래 컴포넌트로 조립하고, 없으면 `components/common` 에 새로 추가하세요.
+
+| 컴포넌트 | 크기 (디자인 기준) | 설명 |
+| --- | --- | --- |
+| `Screen` | 393 프레임 / 콘텐츠 361 | **모든 화면의 셸.** 좌우 마진·배경·하단 고정 CTA 담당 |
+| `AppBar` | 361 x 44 | 뒤로가기 / 제목 / 우측 액션 |
+| `Button` | 361 x 48 · 180 x 48 | `size="full" \| "half"`, 비활성 상태 포함 |
+| `DateNavigator` | 361 x 60 | 날짜 좌우 이동 (`useDateNavigation` 과 함께) |
+| `MealCard` | 361 x 116 (썸네일 178 x 100) | 식사 카드 (+ `MealCardSkeleton`) |
+| `RecommendCard` | 361 x 196 | 식단 추천 카드 (+ `RecommendCardSkeleton`) |
+| `SearchInput` | 361 x 48 | 검색 + 자동완성 (combobox 접근성 포함) |
+| `Modal` | 361 / 헤더 64 | 오버레이·ESC·포커스 트랩 처리 |
+| `Skeleton` | - | `variant="text" \| "image" \| "circle"` |
+| `Chip` | - | 선택 항목 칩 |
+
+```tsx
+import { AppBar, Screen } from '@/components/layout';
+import { Button, MealCard } from '@/components/common';
+
+const SomePage = () => (
+  <Screen bottomCta={<Button onClick={submit}>등록하기</Button>}>
+    <AppBar title="화면 제목" onBack={() => navigate(-1)} />
+    <MealCard time="아침" name="계란찜" detail="약 5,800원" />
+  </Screen>
+);
+```
+
+> 스켈레톤은 **실제 콘텐츠와 같은 크기·같은 자리**로 만듭니다.
+> 로딩이 끝났을 때 레이아웃이 흔들리면 잘못 만든 것입니다.
 
 ### 여러 스타일 조합 (배열 문법)
 
@@ -133,17 +187,17 @@ export const title = style([font.H1, { color: theme.text }]);
 
 ```ts
 import { style } from '@vanilla-extract/css';
-import { flex, font, theme } from '@/styles';
+import { flex, font, layout, radius, spacing, theme } from '@/styles';
 
 export const button = style([
   flex.CENTER, // flex 레이아웃 토큰
-  font.btn2, // 폰트 토큰
+  font.label, // 폰트 토큰
   {
-    height: '48px',
-    padding: '0 24px',
-    borderRadius: '10px',
+    height: layout.size.button,
+    padding: `0 ${spacing.lg}`,
+    borderRadius: radius.sm,
     backgroundColor: theme.primary,
-    color: theme.white,
+    color: theme.onPrimary,
   },
 ]);
 ```
@@ -194,10 +248,22 @@ reset, 폰트, 기본 색상 등 전역 스타일은 [`src/styles/global.css.ts`
 
 ### 서버 주소
 
-`.env` 의 `VITE_SERVER_URL` 이 axios `baseURL` 입니다.
+`.env` 의 `VITE_SERVER_URL` 이 axios `baseURL` 입니다. **origin 만** 적고 `/api/v1` 은 코드가 붙입니다.
 
-- `http://localhost:8080` — 백엔드 컨테이너에 직접 (dev 서버 `pnpm dev` 기본값, CORS 허용됨)
-- 빈 값 — 게이트웨이(`http://localhost:8090`)를 거칠 때 상대경로로 호출 (CORS 없음)
+백엔드는 같은 저장소 옆의 [`gaon-platform`](../gaon-platform) 에서 도커로 띄웁니다.
+
+```bash
+cd ../gaon-platform && make up-all
+```
+
+| 작업 방식 | `VITE_SERVER_URL` | 비고 |
+| --- | --- | --- |
+| **dev 서버(`pnpm dev`, :5173)에서 작업** | `http://localhost:8080` | 백엔드 컨테이너에 직접. `APP_CORS_ALLOWED_ORIGINS` 에 5173 이 들어 있어 CORS 통과 |
+| gaon-platform 이 프론트까지 띄울 때 | 빈 값 | 게이트웨이(`:8090`) 동일 오리진 → CORS 없음 |
+
+> 게이트웨이는 **8090**, 백엔드 직접 접근은 **8080** 입니다. 프론트 dev 서버는 **5173** 이어야 CORS 가 열려 있습니다.
+> 서버가 살아 있는지는 <http://localhost:8080/api/health> 가 `{"status":"UP"}` 을 주는지로 확인하세요.
+> API 문서는 <http://localhost:8090/swagger-ui/index.html>.
 
 ### 기기 인증 (자동)
 

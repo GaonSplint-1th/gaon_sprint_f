@@ -55,7 +55,10 @@ const ErrorPopupProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
-  const value = useMemo(() => ({ showError, hideError }), [showError, hideError]);
+  const value = useMemo(
+    () => ({ showError, hideError }),
+    [showError, hideError],
+  );
 
   useEffect(() => {
     registerErrorPopupBridge(showError);

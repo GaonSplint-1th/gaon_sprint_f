@@ -16,6 +16,7 @@ const neutral = {
   600: '#666666',
   400: '#A3A3A3',
   200: '#D9D9D9',
+  150: '#E6E6E6',
   50: '#F6F6F6',
   0: '#FFFFFF',
 } as const;
@@ -46,7 +47,20 @@ const theme = {
 
   /* Outline */
   outline: '#A3A3A3', // neutral 400
+  border: '#D9D9D9', // neutral 200 — 카드/입력창 테두리
   selectedOutline: '#1F9408', // primary 800
+
+  /* Skeleton (Frame 49.svg 로딩 카드 기준) */
+  skeleton: '#E6E6E6', // neutral 150 — 텍스트/뱃지 자리
+  skeletonStrong: '#D9D9D9', // neutral 200 — 이미지 자리
+  skeletonHighlight: 'rgba(255, 255, 255, 0.75)', // 로딩 shimmer 하이라이트
+
+  /* Disabled (Component 15.svg 비활성 버튼) */
+  disabled: '#D9D9D9', // neutral 200
+  onDisabled: '#A3A3A3', // neutral 400
+
+  /* Dim (모달 배경) */
+  dim: 'rgba(0, 0, 0, 0.3)',
 
   /* Text 위계 (정보 위계에 따라 primary/secondary/tertiary) */
   textPrimary: '#241F1F', // neutral 900

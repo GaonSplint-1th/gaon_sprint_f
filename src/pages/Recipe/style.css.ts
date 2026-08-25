@@ -1,14 +1,17 @@
 import { style } from '@vanilla-extract/css';
-import { flex, theme } from '@/styles';
-
-export const container = style([flex.COLUMN_FLEX, { gap: '16px' }]);
+import { flex, font, radius, spacing, theme } from '@/styles';
 
 export const card = style([
   flex.COLUMN_FLEX,
   {
-    gap: '24px',
-    padding: '16px',
-    borderRadius: '8px',
+    gap: spacing.lg,
+    padding: spacing.md,
+    borderRadius: radius.sm,
     backgroundColor: theme.surface,
   },
+]);
+
+export const message = style([
+  font.bodyLarge,
+  { color: theme.textSecondary, textAlign: 'center' },
 ]);

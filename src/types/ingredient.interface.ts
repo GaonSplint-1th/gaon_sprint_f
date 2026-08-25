@@ -1,19 +1,5 @@
 import type { PageParams } from './common.interface';
 
-/* ── 화면 전용 타입 (자동완성 UI) ────────────────────────────── */
-
-/** 식재료 카테고리 (UI 그룹핑용). */
-export interface Category {
-  id: string;
-  label: string;
-}
-
-/** 자동완성 사전 항목. */
-export interface DictionaryItem {
-  name: string;
-  category: string;
-}
-
 /* ── 공용 식재료 마스터 (GET /api/v1/ingredients) ─────────────── */
 
 /** 공용 ingredient master 한 건. */

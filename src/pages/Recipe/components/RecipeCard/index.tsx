@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react';
-import { HideImage } from '@/components/icons';
+import { useState } from 'react';
+import { HideImageIcon } from '@/components/icons';
+import { Button, Modal } from '@/components/common';
 import type { Ingredient } from '@/types/recipe.interface';
-import IngredientPopup from '../IngredientPopup';
 import * as s from './style.css';
 
 interface RecipeCardProps {
@@ -11,22 +11,17 @@ interface RecipeCardProps {
 }
 
 const RecipeCard = ({ name, imageUrl, ingredients }: RecipeCardProps) => {
-  const [isIngredientPopupOpen, setIsIngredientPopupOpen] = useState(false);
-  const [isImageLoadFailed, setIsImageLoadFailed] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isImageFailed, setIsImageFailed] = useState(false);
   const [loadedImageUrl, setLoadedImageUrl] = useState(imageUrl);
 
   // imageUrl 이 바뀌면 새 이미지에 다시 로드 기회를 준다 (effect 없이 렌더 중 조정).
   if (imageUrl !== loadedImageUrl) {
     setLoadedImageUrl(imageUrl);
-    setIsImageLoadFailed(false);
+    setIsImageFailed(false);
   }
 
-  const showImage = Boolean(imageUrl) && !isImageLoadFailed;
-
-  const closeIngredientPopup = useCallback(
-    () => setIsIngredientPopupOpen(false),
-    [],
-  );
+  const showImage = Boolean(imageUrl) && !isImageFailed;
 
   return (
     <div className={s.container}>
@@ -36,17 +31,17 @@ const RecipeCard = ({ name, imageUrl, ingredients }: RecipeCardProps) => {
             className={s.image}
             src={imageUrl}
             alt={name}
-            onError={() => setIsImageLoadFailed(true)}
+            onError={() => setIsImageFailed(true)}
           />
         ) : (
-          <div className={s.imageEmpty}>
-            <HideImage size={24} />
+          <>
+            <HideImageIcon />
             <p className={s.imageEmptyText}>
               {imageUrl
                 ? '이미지를 불러오지 못했습니다'
                 : '등록된 이미지가 없습니다'}
             </p>
-          </div>
+          </>
         )}
       </div>
 
@@ -55,18 +50,34 @@ const RecipeCard = ({ name, imageUrl, ingredients }: RecipeCardProps) => {
         <button
           type="button"
           className={s.ingredientButton}
-          onClick={() => setIsIngredientPopupOpen(true)}
+          onClick={() => setIsPopupOpen(true)}
         >
           재료보기
         </button>
       </div>
 
-      {isIngredientPopupOpen && (
-        <IngredientPopup
-          recipeName={name}
-          ingredients={ingredients}
-          onClose={closeIngredientPopup}
-        />
+      {isPopupOpen && (
+        <Modal
+          title={name}
+          onClose={() => setIsPopupOpen(false)}
+          footer={
+            <Button size="half" onClick={() => setIsPopupOpen(false)}>
+              닫기
+            </Button>
+          }
+        >
+          <ul className={s.ingredientList}>
+            {ingredients.map((ingredient, index) => (
+              <li
+                key={`${index}-${ingredient.name}`}
+                className={s.ingredientRow}
+              >
+                <span className={s.ingredientName}>{ingredient.name}</span>
+                <span className={s.ingredientAmount}>{ingredient.amount}</span>
+              </li>
+            ))}
+          </ul>
+        </Modal>
       )}
     </div>
   );
