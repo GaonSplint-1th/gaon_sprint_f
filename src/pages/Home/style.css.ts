@@ -269,40 +269,53 @@ export const editScroll = style({
   scrollbarWidth: 'none',
   selectors: { '&::-webkit-scrollbar': { display: 'none' } },
 });
-export const swipeMeals = style({
+export const editMeals = style({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing.md,
 });
-/** 카드와 삭제 버튼을 함께 담는 창. 카드가 왼쪽으로 밀리면 버튼이 드러난다. */
-export const swipeRow = style({
-  position: 'relative',
+/*
+ * 카드와 액션 바를 한 덩어리로 묶는다.
+ * 모서리는 이 창이 잘라 내므로 카드 위쪽 / 액션 바 아래쪽만 둥글게 남는다.
+ * 배경을 카드와 같은 흰색으로 두어야 카드 아래쪽 둥근 모서리 틈으로
+ * 페이지 배경이 비쳐 액션 바와의 이음매가 파이지 않는다.
+ */
+export const mealRow = style({
   borderRadius: '8px',
   overflow: 'hidden',
+  background: theme.surface,
 });
-export const swipeDelete = style([
+export const mealActions = style({ display: 'flex' });
+const mealAction = style([
   flex.CENTER,
   {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    width: '72px',
-    background: theme.error,
-    color: theme.onPrimary,
-    fontSize: '14px',
-    fontWeight: 600,
+    flex: '1 1 0',
+    height: '40px',
+    fontSize: '12px',
+    lineHeight: '16px',
+    fontWeight: 500,
   },
 ]);
-/*
- * 스와이프로 열리는 카드 본체.
- * translate 로 밀면 왼쪽 글자가 화면 밖으로 잘려 나간다. 시안처럼 글자를
- * 그대로 두려면 카드가 밀리는 게 아니라 폭이 줄어야 한다.
- */
-export const swipeCard = style({
-  position: 'relative',
-  width: '100%',
-  touchAction: 'pan-y',
-  transition: 'width 200ms cubic-bezier(.2,.7,.3,1)',
-});
-export const swipeCardDragging = style({ transition: 'none' });
+export const deleteAction = style([
+  mealAction,
+  {
+    background: theme.error,
+    color: theme.onError,
+    selectors: {
+      '&:disabled': {
+        background: theme.neutral[200],
+        color: theme.textTertiary,
+      },
+    },
+  },
+]);
+export const changeAction = style([
+  mealAction,
+  {
+    background: theme.neutral[200],
+    color: theme.textSecondary,
+    selectors: {
+      '&:disabled': { color: theme.textTertiary },
+    },
+  },
+]);
