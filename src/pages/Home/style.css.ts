@@ -9,15 +9,6 @@ export const screen = style({
   padding: '44px 16px 40px',
   background: theme.background,
 });
-export const pageTitle = style([
-  flex.BETWEEN,
-  {
-    minHeight: '44px',
-    padding: '0 16px',
-    borderRadius: '8px',
-    background: theme.surface,
-  },
-]);
 export const title = style([
   font.titleSmall,
   { flex: 1, color: theme.textPrimary },
@@ -28,49 +19,6 @@ export const backButton = style({
   width: '28px',
   textAlign: 'left',
 });
-/*
- * 안내 아이콘. 원은 InfoIcon SVG 가 직접 그린다.
- * 예전에 텍스트 'i' 를 쓰던 시절의 CSS 테두리 원이 남아 있어
- * 원이 두 겹으로 보이고 20px 상자 안에서 아이콘이 눌렸다.
- */
-export const infoIcon = style({
-  display: 'grid',
-  placeItems: 'center',
-  width: '24px',
-  height: '24px',
-  flex: 'none',
-  color: theme.primaryScale[600],
-});
-export const dateBar = style([
-  flex.BETWEEN,
-  {
-    marginTop: spacing.lg,
-    height: '60px',
-    padding: `0 ${spacing.md}`,
-    borderRadius: '8px',
-    background: theme.primaryScale[600],
-    color: theme.onPrimary,
-    fontSize: '20px',
-    lineHeight: '28px',
-    fontWeight: 600,
-  },
-]);
-/** 날짜 이동 화살표. 시안과 같은 24px 아이콘 버튼. */
-export const dateArrow = style([
-  flex.CENTER,
-  { width: '24px', height: '24px', flex: 'none', color: theme.onPrimary },
-]);
-export const dateArrowNext = style({ transform: 'rotate(180deg)' });
-export const costBar = style({
-  marginTop: spacing.sm,
-  height: '32px',
-  paddingTop: '5px',
-  borderRadius: '8px',
-  background: theme.surface,
-  color: theme.primaryScale[600],
-  textAlign: 'center',
-  fontSize: '16px',
-});
 export const mealSection = style({ marginTop: '24px' });
 export const sectionTitle = style([
   font.labelMedium,
@@ -80,43 +28,6 @@ export const mealList = style([
   flex.COLUMN_FLEX,
   { gap: spacing.md, marginTop: spacing.md },
 ]);
-export const mealCard = style([
-  flex.BETWEEN,
-  {
-    minHeight: '116px',
-    gap: spacing.sm,
-    padding: spacing.sm,
-    borderRadius: '8px',
-    background: theme.surface,
-  },
-]);
-/*
- * 식사 카드 글자 크기는 시안(08/09 메뉴수정하기) 값을 그대로 쓴다.
- * 공용 토큰에는 18px SemiBold 가 없고, titleSmall(24px)을 쓰면
- * 카드가 시안 높이(116px)를 넘겨 버린다.
- */
-export const mealInfo = style([
-  flex.COLUMN_FLEX,
-  { alignItems: 'flex-start', gap: spacing.xs, minWidth: 0, flex: 1 },
-]);
-export const mealTime = style({
-  color: theme.textPrimary,
-  fontSize: '18px',
-  lineHeight: '24px',
-  fontWeight: 600,
-});
-export const mealName = style({
-  color: theme.textPrimary,
-  fontSize: '16px',
-  lineHeight: '24px',
-  fontWeight: 400,
-});
-export const mealDetail = style({
-  color: theme.textPrimary,
-  fontSize: '14px',
-  lineHeight: '20px',
-  fontWeight: 500,
-});
 export const recipeButton = style({
   color: theme.link,
   fontSize: '14px',
@@ -125,32 +36,6 @@ export const recipeButton = style({
   selectors: {
     '&:disabled': { color: theme.textTertiary },
   },
-});
-export const recipePreview = style([
-  flex.CENTER,
-  {
-    flex: '0 0 178px',
-    alignSelf: 'stretch',
-    borderRadius: '8px',
-    background: theme.neutral[200],
-  },
-]);
-/** 이미지 자리 표시 아이콘 색. 모양은 NoteOutline SVG 가 그린다. */
-export const recipeIcon = style({ color: theme.textPrimary });
-export const bottomButton = style({
-  width: '100%',
-  height: '48px',
-  marginTop: '28px',
-  borderRadius: '8px',
-  background: theme.primaryScale[600],
-  color: theme.onPrimary,
-  fontSize: '16px',
-  lineHeight: '24px',
-  fontWeight: 700,
-});
-export const disabledButton = style({
-  background: theme.neutral[200],
-  color: theme.neutral[400],
 });
 export const recommendList = style([
   flex.COLUMN_FLEX,
@@ -435,5 +320,3 @@ export const swipeCard = style({
   transition: 'width 200ms cubic-bezier(.2,.7,.3,1)',
 });
 export const swipeCardDragging = style({ transition: 'none' });
-/** 카드가 줄어드는 동안 이미지 자리가 먼저 좁아지도록. */
-export const swipePreviewShrink = style({ minWidth: 0 });

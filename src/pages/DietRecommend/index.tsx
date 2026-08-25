@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, InfoIcon, MenuStarIcon } from '@/components/icons';
+import { MenuStarIcon } from '@/components/icons';
+import { Screen } from '@/components/layout';
+import { BottomButton, PageHeader } from '@/components/common';
 import { useCreateCurrentMenu } from '@/services/menu';
 import {
   useWeeklyMenuDetail,
@@ -19,23 +21,21 @@ import type { WeeklyMenuSummary } from '@/types';
 import * as s from '../Home/style.css';
 
 const Skeleton = () => (
-  <div
-    className={s.screen}
-    aria-busy="true"
-    aria-label="식단 추천을 불러오는 중"
-  >
-    <div className={s.skeletonTitle}>
-      <span className={s.skeletonCircle} />
-      <span className={s.skeletonTitleLine} />
-    </div>
-    {[1, 2, 3].map((item) => (
-      <div className={s.skeletonCard} key={item}>
-        <span className={s.skeletonImage} />
-        <span className={s.skeletonLine} />
-        <span className={s.skeletonSideImage} />
+  <Screen>
+    <div aria-busy="true" aria-label="식단 추천을 불러오는 중">
+      <div className={s.skeletonTitle}>
+        <span className={s.skeletonCircle} />
+        <span className={s.skeletonTitleLine} />
       </div>
-    ))}
-  </div>
+      {[1, 2, 3].map((item) => (
+        <div className={s.skeletonCard} key={item}>
+          <span className={s.skeletonImage} />
+          <span className={s.skeletonLine} />
+          <span className={s.skeletonSideImage} />
+        </div>
+      ))}
+    </div>
+  </Screen>
 );
 
 interface TemplateCardProps {
@@ -215,26 +215,12 @@ const DietRecommendPage = () => {
   };
 
   return (
-    <div className={s.screen}>
-      <header className={s.pageTitle}>
-        <button
-          type="button"
-          className={s.backButton}
-          onClick={() => navigate('/')}
-          aria-label="뒤로가기"
-        >
-          <ArrowLeftIcon />
-        </button>
-        <h1 className={s.title}>식단 추천</h1>
-        <button
-          type="button"
-          className={s.infoIcon}
-          aria-label="식단 추천 안내 보기"
-          onClick={guide.reopen}
-        >
-          <InfoIcon />
-        </button>
-      </header>
+    <Screen>
+      <PageHeader
+        title="식단 추천"
+        onBack={() => navigate('/')}
+        onInfo={guide.reopen}
+      />
 
       <div className={s.recommendList}>
         {items.length === 0 ? (
@@ -253,15 +239,13 @@ const DietRecommendPage = () => {
         )}
       </div>
 
-      <button
+      <BottomButton
         ref={ctaRef}
-        type="button"
-        className={`${s.bottomButton} ${selectedId == null ? s.disabledButton : ''}`}
         disabled={selectedId == null || createCurrentMenu.isPending}
         onClick={applySelected}
       >
         {selectedId == null ? '메뉴 선택하기' : '메뉴 수정하기'}
-      </button>
+      </BottomButton>
 
       {guide.open && (
         <OnboardingGuide
@@ -291,7 +275,7 @@ const DietRecommendPage = () => {
           onClose={() => setPreviewId(null)}
         />
       )}
-    </div>
+    </Screen>
   );
 };
 

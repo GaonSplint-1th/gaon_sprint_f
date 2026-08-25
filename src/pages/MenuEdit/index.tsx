@@ -1,6 +1,13 @@
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, InfoIcon, NoteOutline } from '@/components/icons';
+import { Screen } from '@/components/layout';
+import {
+  BottomButton,
+  CostBar,
+  DateNavigator,
+  MealCard,
+  PageHeader,
+} from '@/components/common';
 import { useCurrentMenu, useDeleteDish } from '@/services/menu';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorMessage, getApiErrorStatus } from '@/api';
@@ -18,45 +25,11 @@ import {
   shiftDayOfWeek,
   toMealSlots,
 } from '@/utils/menu';
-import type { DayOfWeek, MealType, MenuDish } from '@/types';
+import type { DayOfWeek, MealType } from '@/types';
 import * as s from '../Home/style.css';
 
 /** 일주일치를 다 확정하면 끝난다. */
 const TOTAL_DAYS = 7;
-
-interface MealCardProps {
-  mealType: MealType;
-  dish: MenuDish | null;
-  cost: number | null;
-  onOpenRecipe: (dishId: number) => void;
-}
-
-const MealCard = ({ mealType, dish, cost, onOpenRecipe }: MealCardProps) => (
-  <article className={s.mealCard}>
-    <div className={s.mealInfo}>
-      <h3 className={s.mealTime}>{dish ? MEAL_LABELS[mealType] : '미정'}</h3>
-      <p className={s.mealName}>{dish?.name ?? '메뉴명'}</p>
-      <p className={s.mealDetail}>
-        {dish
-          ? (formatCookingTime(dish.cookingTimeMinutes) ?? formatWon(cost))
-          : formatWon(null)}
-      </p>
-      <button
-        type="button"
-        className={s.recipeButton}
-        disabled={!dish}
-        onClick={() => dish && onOpenRecipe(dish.dishId)}
-      >
-        레시피보기
-      </button>
-    </div>
-    <div className={s.recipePreview} aria-hidden="true">
-      <span className={s.recipeIcon}>
-        <NoteOutline size={34} color="currentColor" />
-      </span>
-    </div>
-  </article>
-);
 
 const MenuEditPage = () => {
   const navigate = useNavigate();
@@ -84,22 +57,12 @@ const MenuEditPage = () => {
 
   if (hasNoMenu) {
     return (
-      <div className={s.screen}>
-        <header className={s.pageTitle}>
-          <button
-            type="button"
-            className={s.backButton}
-            onClick={() => navigate(ROUTES.HOME)}
-            aria-label="뒤로가기"
-          >
-            <ArrowLeftIcon />
-          </button>
-          <h1 className={s.title}>식단 수정</h1>
-        </header>
+      <Screen>
+        <PageHeader title="식단 수정" onBack={() => navigate(ROUTES.HOME)} />
         <p className={s.planDescription}>
           현재 식단이 없습니다. 먼저 식단을 추천받아 선택해 주세요.
         </p>
-      </div>
+      </Screen>
     );
   }
 
@@ -114,56 +77,25 @@ const MenuEditPage = () => {
   };
 
   return (
-    <div className={s.screen}>
-      <header className={s.pageTitle}>
-        <button
-          type="button"
-          className={s.backButton}
-          onClick={() => navigate(ROUTES.HOME)}
-          aria-label="뒤로가기"
-        >
-          <ArrowLeftIcon />
-        </button>
-        <h1 className={s.title}>식단 수정</h1>
-        <button
-          type="button"
-          className={s.infoIcon}
-          aria-label="식단 수정 안내 보기"
-          onClick={guide.reopen}
-        >
-          <InfoIcon />
-        </button>
-      </header>
+    <Screen>
+      <PageHeader
+        title="식단 수정"
+        onBack={() => navigate(ROUTES.HOME)}
+        onInfo={guide.reopen}
+      />
 
       <h2 className={s.planTitle}>{currentMenu.data?.name ?? '식단'}</h2>
       <p className={s.planDescription}>
         스크롤하여 메뉴를 확인하고, 옆으로 밀어 삭제할 수 있습니다.
       </p>
 
-      <div className={s.dateBar}>
-        <button
-          ref={prevDayRef}
-          type="button"
-          className={s.dateArrow}
-          aria-label="이전 날짜"
-          onClick={() => setDayOfWeek((value) => shiftDayOfWeek(value, -1))}
-        >
-          <ArrowLeftIcon />
-        </button>
-        <strong>{formatDayLabel(dayOfWeek)}</strong>
-        <button
-          type="button"
-          className={`${s.dateArrow} ${s.dateArrowNext}`}
-          aria-label="다음 날짜"
-          onClick={() => setDayOfWeek((value) => shiftDayOfWeek(value, 1))}
-        >
-          <ArrowLeftIcon />
-        </button>
-      </div>
-
-      <div className={s.costBar}>
-        {price.isLoading ? '계산 중…' : formatWon(price.data?.totalCost)}
-      </div>
+      <DateNavigator
+        ref={prevDayRef}
+        label={formatDayLabel(dayOfWeek)}
+        onPrev={() => setDayOfWeek((value) => shiftDayOfWeek(value, -1))}
+        onNext={() => setDayOfWeek((value) => shiftDayOfWeek(value, 1))}
+      />
+      <CostBar cost={price.data?.totalCost} isLoading={price.isLoading} />
 
       <div className={s.editScroll} ref={mealsRef}>
         <div className={s.swipeMeals} aria-busy={currentMenu.isLoading}>
@@ -177,25 +109,30 @@ const MenuEditPage = () => {
               }
             >
               <MealCard
-                mealType={mealType}
-                dish={dish}
-                cost={costOf(mealType)}
-                onOpenRecipe={(dishId) => navigate(`/recipe/${dishId}`)}
+                time={dish ? MEAL_LABELS[mealType] : '미정'}
+                name={dish?.name ?? '메뉴명'}
+                detail={
+                  dish
+                    ? (formatCookingTime(dish.cookingTimeMinutes) ??
+                      formatWon(costOf(mealType)))
+                    : formatWon(null)
+                }
+                onOpenRecipe={
+                  dish ? () => navigate(`/recipe/${dish.dishId}`) : undefined
+                }
               />
             </SwipeToDelete>
           ))}
         </div>
       </div>
 
-      <button
+      <BottomButton
         ref={confirmRef}
-        type="button"
-        className={`${s.bottomButton} ${isDayConfirmed && !allDone ? s.disabledButton : ''}`}
         disabled={isDayConfirmed && !allDone}
         onClick={allDone ? () => navigate(ROUTES.HOME) : confirmDay}
       >
         {allDone ? '완료' : `확정하기(${confirmed.count}/${TOTAL_DAYS})`}
-      </button>
+      </BottomButton>
 
       {guide.open && (
         <OnboardingGuide
@@ -223,7 +160,7 @@ const MenuEditPage = () => {
           ]}
         />
       )}
-    </div>
+    </Screen>
   );
 };
 
