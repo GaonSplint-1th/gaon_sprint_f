@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, NoteOutline } from '@/components/icons';
+import { ArrowLeftIcon, InfoIcon, NoteOutline } from '@/components/icons';
 import { useCurrentMenu, useDeleteDish } from '@/services/menu';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorMessage, getApiErrorStatus } from '@/api';
 import { ROUTES } from '@/constants';
 import { useConfirmedDays } from './useConfirmedDays';
+import OnboardingGuide from '@/components/common/OnboardingGuide';
+import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
 import SwipeToDelete from './SwipeToDelete';
 import {
   MEAL_LABELS,
@@ -64,6 +66,11 @@ const MenuEditPage = () => {
   const price = useWeeklyMenuPrice(currentMenu.data?.weeklyMenuId, dayOfWeek);
   const deleteDish = useDeleteDish();
   const confirmed = useConfirmedDays(currentMenu.data?.weeklyMenuId);
+  const prevDayRef = useRef<HTMLButtonElement>(null);
+  const mealsRef = useRef<HTMLDivElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  // 처음 들어온 사용자에게 한 번 자동으로 안내를 띄운다.
+  const guide = useFirstVisitGuide('menu-edit');
 
   const hasNoMenu = getApiErrorStatus(currentMenu.error) === 404;
 
@@ -118,6 +125,14 @@ const MenuEditPage = () => {
           <ArrowLeftIcon />
         </button>
         <h1 className={s.title}>식단 수정</h1>
+        <button
+          type="button"
+          className={s.infoIcon}
+          aria-label="식단 수정 안내 보기"
+          onClick={guide.reopen}
+        >
+          <InfoIcon />
+        </button>
       </header>
 
       <h2 className={s.planTitle}>{currentMenu.data?.name ?? '식단'}</h2>
@@ -127,6 +142,7 @@ const MenuEditPage = () => {
 
       <div className={s.dateBar}>
         <button
+          ref={prevDayRef}
           type="button"
           className={s.dateArrow}
           aria-label="이전 날짜"
@@ -149,7 +165,7 @@ const MenuEditPage = () => {
         {price.isLoading ? '계산 중…' : formatWon(price.data?.totalCost)}
       </div>
 
-      <div className={s.editScroll}>
+      <div className={s.editScroll} ref={mealsRef}>
         <div className={s.swipeMeals} aria-busy={currentMenu.isLoading}>
           {slots.map(({ mealType, dish }) => (
             <SwipeToDelete
@@ -172,6 +188,7 @@ const MenuEditPage = () => {
       </div>
 
       <button
+        ref={confirmRef}
         type="button"
         className={`${s.bottomButton} ${isDayConfirmed && !allDone ? s.disabledButton : ''}`}
         disabled={isDayConfirmed && !allDone}
@@ -179,6 +196,33 @@ const MenuEditPage = () => {
       >
         {allDone ? '완료' : `확정하기(${confirmed.count}/${TOTAL_DAYS})`}
       </button>
+
+      {guide.open && (
+        <OnboardingGuide
+          label="식단 수정 안내"
+          onClose={guide.close}
+          steps={[
+            {
+              target: prevDayRef,
+              title: '날짜별 식단 보기',
+              body: '아이콘을 선택하여 날짜를 이동할 수 있습니다.',
+            },
+            {
+              target: mealsRef,
+              title: '식단 수정하기',
+              body: '스크롤하여 식사별 메뉴를 확인하고, 옆으로 스와이프하여 선택 메뉴를 삭제할 수 있습니다.',
+              placement: 'inside',
+            },
+            {
+              target: confirmRef,
+              title: '수정된 식단 확정하기',
+              body: '하루씩 확정하면 7일까지 채울 수 있습니다.',
+              placement: 'above',
+              filled: true,
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };
