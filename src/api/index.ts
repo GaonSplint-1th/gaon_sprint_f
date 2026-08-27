@@ -7,6 +7,7 @@ import { showErrorPopup } from '@/libs/errorPopupBridge';
 import { session } from '@/libs/session';
 import { queryClient } from '@/libs/queryClient';
 import { queryKeys } from '@/constants/queryKeys';
+import { mapStatusToErrorPopupType } from '@/constants/errorMessages';
 import type { ApiErrorBody } from '@/types';
 
 /** 기기 인증 엔드포인트 — 여기서 나는 401 은 만료가 아니라 인증 자체 실패다. */
@@ -84,6 +85,25 @@ export const getApiErrorMessage = (
 /** 실패 응답의 HTTP 상태 코드 (없으면 undefined). */
 export const getApiErrorStatus = (error: unknown): number | undefined =>
   axios.isAxiosError(error) ? error.response?.status : undefined;
+
+/**
+ * 실패 응답을 공용 에러 팝업으로 안내한다. 뮤테이션의 onError 에 그대로 넘겨 쓴다.
+ *
+ * 상태 코드가 있으면 백엔드가 준 사유를 그대로 보여 주고(예: 409 "선택할 수 있는 요리가 없습니다."),
+ * 응답 자체가 없으면 프리셋 안내문에 맡긴다. 네트워크 단절/503 은 인터셉터가 이미 띄우지만
+ * 팝업은 한 번에 하나만 뜨므로 중복되지 않는다.
+ */
+export const showApiErrorPopup = (error: unknown) => {
+  const status = getApiErrorStatus(error);
+  showErrorPopup({
+    type:
+      status === undefined
+        ? 'NETWORK_ERROR'
+        : mapStatusToErrorPopupType(status),
+    message: status === undefined ? undefined : getApiErrorMessage(error),
+    code: status,
+  });
+};
 
 /* 응답의 data 만 바로 꺼내 쓰는 얇은 헬퍼들 */
 export const api = {

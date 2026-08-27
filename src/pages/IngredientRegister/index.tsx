@@ -13,7 +13,7 @@ import {
   useRemoveUserIngredient,
   useUserIngredients,
 } from '@/services/ingredient';
-import { getApiErrorMessage } from '@/api';
+import { showApiErrorPopup } from '@/api';
 import { ROUTES } from '@/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
@@ -67,7 +67,7 @@ const IngredientRegisterPage = () => {
     activeOptionRef.current?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex, showSuggest]);
 
-  const onError = (error: unknown) => window.alert(getApiErrorMessage(error));
+  const onError = showApiErrorPopup;
 
   const add = (ingredientId: number) => {
     if (isSelected(ingredientId)) return;
