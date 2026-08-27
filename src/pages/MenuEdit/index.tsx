@@ -10,7 +10,7 @@ import {
 } from '@/components/common';
 import { useCurrentMenu, useDeleteDish, useRerollDish } from '@/services/menu';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
-import { getApiErrorMessage, getApiErrorStatus } from '@/api';
+import { getApiErrorStatus, showApiErrorPopup } from '@/api';
 import { ROUTES } from '@/constants';
 import { useConfirmedDays } from './useConfirmedDays';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
@@ -51,7 +51,7 @@ const MenuEditPage = () => {
   const slots = useMemo(() => toMealSlots(day?.dishes), [day?.dishes]);
 
   // 새로고침은 후보가 떨어지면 409 로 실패한다. 백엔드 메시지를 그대로 보여 준다.
-  const onError = (error: unknown) => window.alert(getApiErrorMessage(error));
+  const onError = showApiErrorPopup;
   const isEditing = deleteDish.isPending || rerollDish.isPending;
 
   const costOf = (mealType: MealType): number | null =>

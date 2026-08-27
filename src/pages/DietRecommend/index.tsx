@@ -8,7 +8,7 @@ import {
   useWeeklyMenuDetail,
   useWeeklyMenuTemplates,
 } from '@/services/weeklyMenu';
-import { getApiErrorMessage } from '@/api';
+import { showApiErrorPopup } from '@/api';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
 import { useDismissableLayer } from '@/hooks/useDismissableLayer';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
@@ -185,7 +185,7 @@ const DietRecommendPage = () => {
       { weeklyMenuId: selectedId },
       {
         onSuccess: () => navigate('/edit'),
-        onError: (error) => window.alert(getApiErrorMessage(error)),
+        onError: showApiErrorPopup,
       },
     );
   };
