@@ -18,7 +18,9 @@ globalStyle('*, *::before, *::after', {
 
 globalStyle('html, body, #root', {
   width: '100%',
-  minHeight: '100vh',
+  // 모바일 브라우저에서 100vh 는 주소창을 포함한 '큰' 높이라
+  // 내용이 화면에 다 들어가도 스크롤이 생긴다. dvh 로 통일한다.
+  minHeight: '100dvh',
 });
 
 globalStyle('html', {

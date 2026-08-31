@@ -3,4 +3,6 @@
  */
 export const ROUTES = {
   HOME: '/',
+  INGREDIENT_REGISTER: '/ingredient-register',
+  RECIPE: '/recipe/:id',
 } as const;
