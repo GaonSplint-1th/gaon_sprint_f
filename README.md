@@ -194,9 +194,10 @@ reset, 폰트, 기본 색상 등 전역 스타일은 [`src/styles/global.css.ts`
 
 ### 서버 주소
 
-`.env` 의 `VITE_SERVER_URL` 이 axios `baseURL` 입니다.
+`VITE_SERVER_URL` 이 axios `baseURL` 입니다. 개발은 `.env`, 프로덕션 빌드(`pnpm build`)는 `.env.production` 을 씁니다.
 
 - `http://localhost:8080` — 백엔드 컨테이너에 직접 (dev 서버 `pnpm dev` 기본값, CORS 허용됨)
+- `https://api.mealpick.store` — 배포된 백엔드 (`.env.production`, `pnpm build` 시 자동 적용)
 - 빈 값 — 게이트웨이(`http://localhost:8090`)를 거칠 때 상대경로로 호출 (CORS 없음)
 
 ### 기기 인증 (자동)
