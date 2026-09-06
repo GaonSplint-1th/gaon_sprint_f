@@ -45,14 +45,17 @@ export const queryKeys = {
     templates: () => [...queryKeys.weeklyMenus.all] as const,
     detail: (weeklyMenuId: number) =>
       [...queryKeys.weeklyMenus.all, weeklyMenuId] as const,
-    /** 내가 만들거나 수정한 개인 템플릿 목록. */
-    mine: (userId: string) =>
+    /**
+     * 유저 스코프 주간식단 키의 공통 접두사.
+     * 내 템플릿 목록과 식비가 이 아래에 있어, 한 번에 무효화할 때 쓴다.
+     */
+    ofUser: (userId: string) =>
       [...queryKeys.user.all, userId, 'weekly-menus'] as const,
+    /** 내가 만들거나 수정한 개인 템플릿 목록. */
+    mine: (userId: string) => queryKeys.weeklyMenus.ofUser(userId),
     price: (userId: string, weeklyMenuId: number, dayOfWeek?: DayOfWeek) =>
       [
-        ...queryKeys.user.all,
-        userId,
-        'weekly-menus',
+        ...queryKeys.weeklyMenus.ofUser(userId),
         weeklyMenuId,
         'price',
         { dayOfWeek: dayOfWeek ?? null },

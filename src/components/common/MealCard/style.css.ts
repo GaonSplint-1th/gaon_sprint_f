@@ -47,14 +47,9 @@ export const recipeButton = style({
     '&:disabled': { color: theme.textTertiary },
   },
 });
-export const preview = style([
-  flex.CENTER,
-  {
-    flex: '0 0 178px',
-    alignSelf: 'stretch',
-    borderRadius: '8px',
-    background: theme.neutral[200],
-  },
-]);
-/** 이미지 자리 아이콘 색. 모양은 NoteOutline SVG 가 그린다. */
-export const previewIcon = style({ color: theme.textPrimary });
+/** 이미지 칸의 자리만 잡는다. 모서리·배경·대체 아이콘은 DishImage 가 그린다. */
+export const preview = style({
+  flex: '0 0 178px',
+  alignSelf: 'stretch',
+  borderRadius: '8px',
+});

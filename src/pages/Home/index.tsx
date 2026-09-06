@@ -8,6 +8,7 @@ import {
   PageHeader,
 } from '@/components/common';
 import { useDayMenu } from '@/services/menu';
+import { useDishImages } from '@/services/dish';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorStatus } from '@/api';
 import { ROUTES } from '@/constants';
@@ -38,6 +39,9 @@ const HomePage = () => {
     [dayMenu.data?.dishes],
   );
 
+  // 식단 응답에는 요리 이름만 있어 대표 이미지는 요리 상세에서 따로 받아 온다.
+  const dishImages = useDishImages(slots.map(({ dish }) => dish?.dishId));
+
   // 아직 식단이 없으면 앱의 첫 화면인 식재료 등록으로 보낸다.
   // 여기서 식재료를 등록하고 식단을 만들어 오는 것이 정해진 진입 흐름이다.
   if (hasNoMenu) {
@@ -57,7 +61,12 @@ const HomePage = () => {
         onPrev={() => setDayOfWeek((day) => shiftDayOfWeek(day, -1))}
         onNext={() => setDayOfWeek((day) => shiftDayOfWeek(day, 1))}
       />
-      <CostBar cost={price.data?.totalCost} isLoading={price.isLoading} />
+      <CostBar
+        cost={price.data?.totalCost}
+        isLoading={price.isLoading}
+        onRefresh={() => void price.refetch()}
+        isRefreshing={price.isFetching}
+      />
 
       <section className={s.mealSection} aria-labelledby="meal-section-title">
         <h2 id="meal-section-title" className={s.sectionTitle}>
@@ -77,6 +86,8 @@ const HomePage = () => {
                     formatWon(costOf(mealType)))
                   : '메뉴 없음'
               }
+              imageUrl={dish ? dishImages.images[dish.dishId] : null}
+              isImageLoading={Boolean(dish) && dishImages.isLoading}
               onOpenRecipe={
                 dish ? () => navigate(`/recipe/${dish.dishId}`) : undefined
               }
