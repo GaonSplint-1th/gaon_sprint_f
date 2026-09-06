@@ -14,9 +14,9 @@ import {
   useUserIngredients,
 } from '@/services/ingredient';
 import { showApiErrorPopup } from '@/api';
-import { ROUTES } from '@/constants';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
+import { useGoBack } from '@/hooks/useGoBack';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { toCategoryId } from '@/utils/ingredient';
 import * as s from './style.css';
@@ -28,6 +28,7 @@ const getSuggestionId = (index: number) => `ingredient-suggestion-${index}`;
 
 const IngredientRegisterPage = () => {
   const navigate = useNavigate();
+  const goBack = useGoBack();
   const inputRef = useRef<HTMLInputElement>(null);
   const activeOptionRef = useRef<HTMLButtonElement>(null);
   const searchFieldRef = useRef<HTMLDivElement>(null);
@@ -129,8 +130,8 @@ const IngredientRegisterPage = () => {
           type="button"
           aria-label="뒤로 가기"
           // 이 화면이 진입점이라 history 가 비어 있을 수 있다.
-          // navigate(-1) 은 앱 밖으로 나가버리므로 홈으로 고정한다.
-          onClick={() => navigate(ROUTES.HOME)}
+          // useGoBack 이 그 경우만 홈으로 떨어뜨리고, 나머지는 한 페이지 뒤로 간다.
+          onClick={goBack}
         >
           <ArrowLeftIcon aria-hidden />
         </button>
@@ -278,14 +279,17 @@ const IngredientRegisterPage = () => {
 
       <div className={s.ctaGradient} aria-hidden />
       <div className={s.ctaDock}>
+        {/*
+         * 보유 식재료는 추천 정확도를 높이는 선택 정보다.
+         * 하나도 없어도 추천은 받을 수 있어야 하므로 버튼을 잠그지 않는다.
+         */}
         <button
           ref={ctaRef}
           className={s.cta}
           type="button"
-          disabled={selected.length === 0}
           onClick={() => navigate('/recommend')}
         >
-          등록하기
+          {selected.length === 0 ? '건너뛰기' : '등록하기'}
         </button>
       </div>
       {guide.open && (
@@ -301,7 +305,7 @@ const IngredientRegisterPage = () => {
             {
               target: ctaRef,
               title: '등록하기',
-              body: '등록하기를 선택하여 다음으로 넘어갑니다.',
+              body: '등록하기를 선택하여 다음으로 넘어갑니다. 식재료가 없다면 건너뛸 수 있습니다.',
               placement: 'above',
               filled: true,
             },

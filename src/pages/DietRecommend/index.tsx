@@ -2,14 +2,16 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MenuStarIcon } from '@/components/icons';
 import { Screen } from '@/components/layout';
-import { BottomButton, PageHeader } from '@/components/common';
+import { BottomButton, DishImage, PageHeader } from '@/components/common';
 import { useCreateCurrentMenu } from '@/services/menu';
+import { useDishImages } from '@/services/dish';
 import {
   useWeeklyMenuDetail,
   useWeeklyMenuTemplates,
 } from '@/services/weeklyMenu';
 import { showApiErrorPopup } from '@/api';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
+import { useGoBack } from '@/hooks/useGoBack';
 import { useDismissableLayer } from '@/hooks/useDismissableLayer';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import {
@@ -18,8 +20,11 @@ import {
   formatWon,
   toMealSlots,
 } from '@/utils/menu';
-import type { WeeklyMenuSummary } from '@/types';
+import type { WeeklyMenuDetail, WeeklyMenuSummary } from '@/types';
 import * as s from '../Home/style.css';
+
+/** 카드 위에 미리 보여 주는 요리 이미지 개수. */
+const CARD_IMAGE_COUNT = 3;
 
 const Skeleton = () => (
   <Screen>
@@ -39,6 +44,10 @@ const Skeleton = () => (
   </Screen>
 );
 
+/** 상세의 7일 × 3끼를 요일·끼니 순서 그대로 편다. */
+const flattenDishes = (detail: WeeklyMenuDetail | undefined) =>
+  detail?.days.flatMap((day) => day.dishes) ?? [];
+
 interface TemplateCardProps {
   /** 안내에서 짚어 줄 첫 카드에만 넘어온다. */
   cardRef?: React.RefObject<HTMLElement | null>;
@@ -55,8 +64,13 @@ const TemplateCard = ({
   onSelect,
   onPreview,
 }: TemplateCardProps) => {
-  // 이름·요약 문구·예상 식비가 모두 목록 응답에 들어 있어 카드가 따로 호출하지 않는다.
-  // 상세(21끼 구성)는 미리보기를 열 때만 받아 온다.
+  // 이름·요약 문구·예상 식비는 목록 응답에 들어 있다.
+  // 다만 목록에는 요리 이미지가 없어, 카드 위 미리보기 3장을 위해 상세를 받아 온다.
+  // 상세는 미리보기 모달과 같은 캐시를 쓰므로 모달을 열 때 다시 부르지 않는다.
+  const detail = useWeeklyMenuDetail(template.weeklyMenuId);
+  const previewDishes = flattenDishes(detail.data).slice(0, CARD_IMAGE_COUNT);
+  const dishImages = useDishImages(previewDishes.map((dish) => dish.dishId));
+
   return (
     <article
       ref={cardRef as React.Ref<HTMLElement>}
@@ -77,11 +91,20 @@ const TemplateCard = ({
         <span>예상 {formatWon(template.estimatedCost)}</span>
       </div>
       <div className={s.imageRow}>
-        {[0, 1, 2].map((index) => (
-          <div className={s.placeholder} key={index}>
-            이미지
-          </div>
-        ))}
+        {/* 상세가 아직이거나 끼니가 비어도 칸 수는 유지해 카드 높이가 흔들리지 않게 한다. */}
+        {Array.from({ length: CARD_IMAGE_COUNT }, (_, index) => {
+          const dish = previewDishes[index];
+          return (
+            <DishImage
+              key={dish?.dishId ?? `empty-${index}`}
+              className={s.cardImage}
+              src={dish ? dishImages.images[dish.dishId] : null}
+              alt={dish?.name ?? ''}
+              iconSize={20}
+              isLoading={detail.isLoading || dishImages.isLoading}
+            />
+          );
+        })}
       </div>
       <p className={s.ingredients}>
         <span className={s.ingredientIcon} aria-hidden="true">
@@ -112,6 +135,10 @@ const PreviewModal = ({
 }) => {
   const detail = useWeeklyMenuDetail(weeklyMenuId);
   const modalRef = useRef<HTMLDivElement>(null);
+  // 21끼를 한 번에 받아 두면 요일을 훑어 내려도 이미지가 새로 뜨지 않는다.
+  const dishImages = useDishImages(
+    flattenDishes(detail.data).map((dish) => dish.dishId),
+  );
 
   useDismissableLayer(onClose, { containerRef: modalRef, trapFocus: true });
 
@@ -135,7 +162,13 @@ const PreviewModal = ({
               <div className={s.dayMeals}>
                 {toMealSlots(day.dishes).map(({ mealType, dish }) => (
                   <div className={s.dayMeal} key={mealType}>
-                    <div className={s.modalPlaceholder} />
+                    <DishImage
+                      className={s.dayMealImage}
+                      src={dish ? dishImages.images[dish.dishId] : null}
+                      alt={dish?.name ?? ''}
+                      iconSize={18}
+                      isLoading={Boolean(dish) && dishImages.isLoading}
+                    />
                     <span
                       className={s.dayMealName}
                       title={dish?.name ?? undefined}
@@ -164,6 +197,7 @@ const PreviewModal = ({
 
 const DietRecommendPage = () => {
   const navigate = useNavigate();
+  const goBack = useGoBack();
   const templates = useWeeklyMenuTemplates();
   const createCurrentMenu = useCreateCurrentMenu();
 
@@ -192,11 +226,7 @@ const DietRecommendPage = () => {
 
   return (
     <Screen>
-      <PageHeader
-        title="식단 추천"
-        onBack={() => navigate('/')}
-        onInfo={guide.reopen}
-      />
+      <PageHeader title="식단 추천" onBack={goBack} onInfo={guide.reopen} />
 
       <div className={s.recommendList}>
         {items.length === 0 ? (

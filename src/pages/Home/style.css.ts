@@ -62,17 +62,12 @@ export const imageRow = style([
   flex.BETWEEN,
   { gap: spacing.sm, marginTop: spacing.sm },
 ]);
-export const placeholder = style([
-  flex.CENTER,
-  {
-    flex: 1,
-    height: '72px',
-    borderRadius: '8px',
-    background: theme.neutral[200],
-    color: theme.textSecondary,
-    fontSize: '12px',
-  },
-]);
+/** 카드 위 요리 이미지 칸. 배경·대체 아이콘은 DishImage 가 그린다. */
+export const cardImage = style({
+  flex: 1,
+  height: '72px',
+  borderRadius: '8px',
+});
 export const ingredients = style({ marginTop: '10px', fontSize: '14px' });
 /*
  * 구성 아이콘. 모양은 MenuStarIcon SVG 가 그리고 여기서는 색만 정한다.
@@ -197,11 +192,11 @@ export const dayMealName = style({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 });
-export const modalPlaceholder = style({
+/** 미리보기 한 끼의 요리 이미지. */
+export const dayMealImage = style({
   height: '56px',
   marginBottom: '6px',
   borderRadius: '4px',
-  background: theme.neutral[200],
 });
 export const skeletonTitle = style({
   display: 'flex',

@@ -9,12 +9,14 @@ import {
   PageHeader,
 } from '@/components/common';
 import { useCurrentMenu, useDeleteDish, useRerollDish } from '@/services/menu';
+import { useDishImages } from '@/services/dish';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorStatus, showApiErrorPopup } from '@/api';
 import { ROUTES } from '@/constants';
 import { useConfirmedDays } from './useConfirmedDays';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
+import { useGoBack } from '@/hooks/useGoBack';
 import MealActions from './MealActions';
 import {
   MEAL_LABELS,
@@ -33,6 +35,7 @@ const TOTAL_DAYS = 7;
 
 const MenuEditPage = () => {
   const navigate = useNavigate();
+  const goBack = useGoBack();
   const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek>(getTodayDayOfWeek());
 
   const currentMenu = useCurrentMenu();
@@ -50,6 +53,9 @@ const MenuEditPage = () => {
   const day = currentMenu.data?.days.find((it) => it.dayOfWeek === dayOfWeek);
   const slots = useMemo(() => toMealSlots(day?.dishes), [day?.dishes]);
 
+  // 식단 응답에는 요리 이름만 있어 대표 이미지는 요리 상세에서 따로 받아 온다.
+  const dishImages = useDishImages(slots.map(({ dish }) => dish?.dishId));
+
   // 새로고침은 후보가 떨어지면 409 로 실패한다. 백엔드 메시지를 그대로 보여 준다.
   const onError = showApiErrorPopup;
   const isEditing = deleteDish.isPending || rerollDish.isPending;
@@ -60,7 +66,7 @@ const MenuEditPage = () => {
   if (hasNoMenu) {
     return (
       <Screen>
-        <PageHeader title="식단 수정" onBack={() => navigate(ROUTES.HOME)} />
+        <PageHeader title="식단 수정" onBack={goBack} />
         <p className={s.planDescription}>
           현재 식단이 없습니다. 먼저 식단을 추천받아 선택해 주세요.
         </p>
@@ -79,11 +85,7 @@ const MenuEditPage = () => {
 
   return (
     <Screen>
-      <PageHeader
-        title="식단 수정"
-        onBack={() => navigate(ROUTES.HOME)}
-        onInfo={guide.reopen}
-      />
+      <PageHeader title="식단 수정" onBack={goBack} onInfo={guide.reopen} />
 
       <h2 className={s.planTitle}>{currentMenu.data?.name ?? '식단'}</h2>
       <p className={s.planDescription}>스크롤하여 메뉴를 변경할 수 있습니다.</p>
@@ -94,7 +96,12 @@ const MenuEditPage = () => {
         onPrev={() => setDayOfWeek((value) => shiftDayOfWeek(value, -1))}
         onNext={() => setDayOfWeek((value) => shiftDayOfWeek(value, 1))}
       />
-      <CostBar cost={price.data?.totalCost} isLoading={price.isLoading} />
+      <CostBar
+        cost={price.data?.totalCost}
+        isLoading={price.isLoading}
+        onRefresh={() => void price.refetch()}
+        isRefreshing={price.isFetching}
+      />
 
       <div className={s.editScroll} ref={mealsRef}>
         <div className={s.editMeals} aria-busy={currentMenu.isLoading}>
@@ -109,6 +116,8 @@ const MenuEditPage = () => {
                       formatWon(costOf(mealType)))
                     : formatWon(null)
                 }
+                imageUrl={dish ? dishImages.images[dish.dishId] : null}
+                isImageLoading={Boolean(dish) && dishImages.isLoading}
                 onOpenRecipe={
                   dish ? () => navigate(`/recipe/${dish.dishId}`) : undefined
                 }

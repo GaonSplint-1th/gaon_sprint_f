@@ -13,14 +13,15 @@ export const container = style([
   },
 ]);
 
-// Figma Body/Large/extrabold: Pretendard 16px / SemiBold(600) / 24px(150%) / justify
+// Figma Body/Large/extrabold: Pretendard 16px / SemiBold(600) / 24px(150%)
 // 색상 변수명은 text-secondary이나 실측 hex(#241F1F)는 Neutral/900과 동일해 textPrimary 사용
+// 시안은 justify 지만 한글은 단어 사이가 늘어나 줄마다 간격이 들쭉날쭉해진다. 왼쪽 정렬로 둔다.
 export const description = style({
   flex: 1,
   fontSize: '16px',
   fontWeight: 600,
   lineHeight: '24px',
-  textAlign: 'justify',
+  textAlign: 'left',
   wordBreak: 'keep-all',
   color: theme.textPrimary,
 });

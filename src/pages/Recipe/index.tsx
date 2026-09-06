@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { queryKeys } from '@/constants/queryKeys';
 import { getRecipeById } from '@/services/recipe';
 import RecipeAppBar from './components/RecipeAppBar';
@@ -9,11 +9,12 @@ import CookingStepList from './components/CookingStepList';
 import RecipeSkeleton from './components/RecipeSkeleton';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
+import { useGoBack } from '@/hooks/useGoBack';
 import * as s from './style.css';
 
 const RecipePage = () => {
   const { id = '' } = useParams();
-  const navigate = useNavigate();
+  const goBack = useGoBack();
   const ingredientButtonRef = useRef<HTMLButtonElement>(null);
   const stepsRef = useRef<HTMLDivElement>(null);
   // 처음 들어온 사용자에게 한 번 자동으로 안내를 띄운다.
@@ -32,7 +33,7 @@ const RecipePage = () => {
   if (isLoading) {
     return (
       <div className={s.container}>
-        <RecipeAppBar title="레시피" onBack={() => navigate(-1)} />
+        <RecipeAppBar title="레시피" onBack={goBack} />
         <div
           className={s.card}
           role="status"
@@ -47,7 +48,7 @@ const RecipePage = () => {
   if (isError || !recipe) {
     return (
       <div className={s.container}>
-        <RecipeAppBar title="레시피" onBack={() => navigate(-1)} />
+        <RecipeAppBar title="레시피" onBack={goBack} />
         <div className={s.card}>레시피를 찾을 수 없습니다.</div>
       </div>
     );
@@ -55,11 +56,7 @@ const RecipePage = () => {
 
   return (
     <div className={s.container}>
-      <RecipeAppBar
-        title="레시피"
-        onBack={() => navigate(-1)}
-        onInfo={guide.reopen}
-      />
+      <RecipeAppBar title="레시피" onBack={goBack} onInfo={guide.reopen} />
 
       <div className={s.card}>
         <RecipeCard

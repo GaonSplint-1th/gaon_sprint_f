@@ -21,14 +21,24 @@ interface SlotVars {
   mealType: MealType;
 }
 
-/** 현재 식단 트리 전체(요일 포함)를 무효화한다. */
+/**
+ * 현재 식단 트리 전체(요일 포함)와 식비를 무효화한다.
+ *
+ * 끼니를 바꾸면 식비도 따라 달라지는데, 가격은 weekly-menus 아래의 별도 키라
+ * 식단만 무효화하면 화면의 금액이 예전 값으로 남는다. 둘을 함께 지운다.
+ */
 const useInvalidateCurrentMenu = () => {
   const userId = useUserId();
   const queryClient = useQueryClient();
   return () =>
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.currentMenu.root(userId ?? ''),
-    });
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.currentMenu.root(userId ?? ''),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.weeklyMenus.ofUser(userId ?? ''),
+      }),
+    ]);
 };
 
 /** 현재 식단 생성 (템플릿 등록). */
