@@ -43,8 +43,10 @@ const ShoppingPage = () => {
   const changeStatus = useChangeShoppingListItemStatus();
   const issue = useIssueShoppingList();
 
-  // 영수증에는 없는 정보(카테고리·쓰임)를 가격 계산에서 빌려 온다.
-  // 목록 자체는 저장된 영수증이 기준이고, 이건 덧칠이다.
+  /*
+   * '쓰임'(어느 요리에 들어가는지)만 가격 계산에서 빌려 온다. 목록·분류·금액은
+   * 저장된 영수증이 다 들고 있어, 이 응답이 늦어도 화면이 재배치되지 않는다.
+   */
   const price = useWeeklyMenuPrice(currentMenu.data?.weeklyMenuId);
 
   const firstRowRef = useRef<HTMLDivElement>(null);
@@ -58,14 +60,6 @@ const ShoppingPage = () => {
     return map;
   }, [price.data]);
 
-  const categoryByIngredient = useMemo(() => {
-    const map = new Map<number, string>();
-    for (const usage of foldIngredients(price.data)) {
-      map.set(usage.ingredientId, toCategoryId(usage.category));
-    }
-    return map;
-  }, [price.data]);
-
   const items = useMemo(
     () => shoppingList.data?.items ?? [],
     [shoppingList.data?.items],
@@ -75,14 +69,14 @@ const ShoppingPage = () => {
   const grouped = useMemo(() => {
     const buckets = new Map<string, ShoppingListItem[]>();
     for (const item of items) {
-      const categoryId = categoryByIngredient.get(item.ingredientId) ?? 'etc';
+      const categoryId = toCategoryId(item.category);
       buckets.set(categoryId, [...(buckets.get(categoryId) ?? []), item]);
     }
     return CATEGORIES.map((category) => ({
       ...category,
       items: buckets.get(category.id) ?? [],
     })).filter((category) => category.items.length > 0);
-  }, [items, categoryByIngredient]);
+  }, [items]);
 
   const buying = items.filter((item) => item.status !== 'SKIPPED');
   const skipped = items.filter((item) => item.status === 'SKIPPED');
@@ -107,6 +101,42 @@ const ShoppingPage = () => {
   const hasNoMenu =
     getApiErrorStatus(shoppingList.error) === 404 ||
     getApiErrorStatus(currentMenu.error) === 404;
+
+  /* ── 로딩 ── */
+  if (shoppingList.isPending) {
+    return (
+      <div className={s.screen}>
+        <PageHeader title="장보기 목록" onBack={goBack} />
+        <div className={s.skeletonSummary} />
+        <div className={s.paperWrap}>
+          <div className={s.paper}>
+            <div className={s.skeletonRows} aria-busy>
+              {Array.from({ length: 6 }, (_, index) => (
+                <div key={index} className={s.skeletonRow}>
+                  <span className={s.skeletonCheck} />
+                  <div>
+                    <span
+                      className={s.skeletonLine}
+                      style={{ display: 'block', width: '62%', height: '15px' }}
+                    />
+                    <span
+                      className={s.skeletonLine}
+                      style={{
+                        display: 'block',
+                        width: '84%',
+                        height: '12px',
+                        marginTop: '8px',
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   /* ── 빈 상태 ── */
   if (hasNoMenu || (shoppingList.isSuccess && items.length === 0)) {

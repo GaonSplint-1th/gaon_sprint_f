@@ -1,5 +1,6 @@
 import { style, styleVariants } from '@vanilla-extract/css';
 import { elevation, flex, font, layout, spacing, theme } from '@/styles';
+import { skeletonPiece } from '@/styles/skeleton.css';
 
 const CTA_HEIGHT = 48;
 
@@ -483,3 +484,27 @@ export const ctaCount = style({
   opacity: 0.9,
   fontVariantNumeric: 'tabular-nums',
 });
+
+/* ── 로딩 ─────────────────────────────────────────────────── */
+/*
+ * 영수증이 오기 전에 본문을 그리면 '재료 0종 · 0원' 영수증이 잠깐 스친다.
+ * 같은 자리를 같은 크기로 미리 잡아 두어 값이 도착해도 화면이 튀지 않게 한다.
+ */
+export const skeletonSummary = style([
+  skeletonPiece,
+  { marginTop: spacing.lg, height: '138px', borderRadius: '8px' },
+]);
+export const skeletonRows = style([
+  flex.COLUMN_FLEX,
+  { gap: '18px', marginTop: spacing.md },
+]);
+export const skeletonRow = style({
+  display: 'grid',
+  gridTemplateColumns: '24px minmax(0, 1fr)',
+  gap: '10px',
+});
+export const skeletonCheck = style([
+  skeletonPiece,
+  { width: '22px', height: '22px', borderRadius: '6px' },
+]);
+export const skeletonLine = style([skeletonPiece, { borderRadius: '4px' }]);

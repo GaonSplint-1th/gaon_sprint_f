@@ -11,6 +11,8 @@ export interface ShoppingListItem {
   shoppingListItemId: number;
   ingredientId: number;
   name: string;
+  /** 재료 분류. 마트 동선 순서로 묶는 데 쓴다. */
+  category: string | null;
   /** 이 식단이 한 주 동안 쓰는 양. 보유 식재료를 빼지 않은 전량이다. */
   quantityGrams: number | null;
   status: ShoppingListItemStatus;

@@ -79,8 +79,9 @@ const MenuEditPage = () => {
 
   /**
    * 수정을 끝낸다. 나가기 전에 영수증을 다시 뽑아 바뀐 메뉴의 재료를 반영한다.
-   * 발행에 실패해도 수정 자체는 이미 저장돼 있으므로 화면은 넘긴다 —
-   * 장보기 화면에서 다시 뽑을 수 있다.
+   *
+   * 실패하면 이 화면에 남는다. 끼니 수정은 누를 때마다 이미 저장돼 있으니 잃는 건
+   * 없지만, 조용히 나가 버리면 장보기 목록이 옛 내용인 걸 아무도 모른다.
    */
   const finish = () => {
     const weeklyMenuId = currentMenu.data?.weeklyMenuId;
@@ -88,7 +89,10 @@ const MenuEditPage = () => {
       goBack();
       return;
     }
-    issueReceipt.mutate(weeklyMenuId, { onSettled: goBack });
+    issueReceipt.mutate(weeklyMenuId, {
+      onSuccess: goBack,
+      onError: showApiErrorPopup,
+    });
   };
 
   return (
