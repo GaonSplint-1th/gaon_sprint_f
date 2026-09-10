@@ -10,6 +10,7 @@ import {
   useWeeklyMenuTemplates,
 } from '@/services/weeklyMenu';
 import { showApiErrorPopup } from '@/api';
+import { ROUTES } from '@/constants';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
 import { useGoBack } from '@/hooks/useGoBack';
 import { useDismissableLayer } from '@/hooks/useDismissableLayer';
@@ -218,7 +219,7 @@ const DietRecommendPage = () => {
     createCurrentMenu.mutate(
       { weeklyMenuId: selectedId },
       {
-        onSuccess: () => navigate('/edit'),
+        onSuccess: () => navigate(ROUTES.MENU_EDIT),
         onError: showApiErrorPopup,
       },
     );

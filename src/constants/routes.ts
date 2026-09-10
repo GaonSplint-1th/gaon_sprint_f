@@ -5,5 +5,6 @@ export const ROUTES = {
   HOME: '/',
   INGREDIENT_REGISTER: '/ingredient-register',
   RECIPE: '/recipe/:id',
+  MENU_EDIT: '/edit',
   SHOPPING: '/shopping',
 } as const;

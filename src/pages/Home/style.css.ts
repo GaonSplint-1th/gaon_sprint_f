@@ -21,6 +21,8 @@ export const backButton = style({
   textAlign: 'left',
 });
 export const mealSection = style({ marginTop: '24px' });
+/** 섹션 제목 줄. 오른쪽 끝에 수정 진입을 얹는다. */
+export const sectionHead = style([flex.BETWEEN, { gap: spacing.sm }]);
 export const sectionTitle = style([
   font.labelMedium,
   { color: theme.textPrimary },
@@ -379,3 +381,16 @@ export const receiptFill = style({
   },
 });
 export const receiptGo = style({ flex: 'none', color: theme.neutral[400] });
+
+/**
+ * 식단 수정 진입. 카드에 있는 '레시피보기' 와 같은 말투(파란 링크)로 둔다 —
+ * 홈에 큰 버튼을 하나 더 세우면 화면이 카드 더미가 된다.
+ */
+export const editMenuButton = style({
+  flex: 'none',
+  padding: '4px 2px',
+  color: theme.link,
+  fontSize: '14px',
+  lineHeight: '20px',
+  fontWeight: 500,
+});

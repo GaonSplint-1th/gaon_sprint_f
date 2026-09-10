@@ -72,9 +72,18 @@ const HomePage = () => {
       <ReceiptEntry />
 
       <section className={s.mealSection} aria-labelledby="meal-section-title">
-        <h2 id="meal-section-title" className={s.sectionTitle}>
-          식사별 메뉴
-        </h2>
+        <div className={s.sectionHead}>
+          <h2 id="meal-section-title" className={s.sectionTitle}>
+            식사별 메뉴
+          </h2>
+          <button
+            type="button"
+            className={s.editMenuButton}
+            onClick={() => navigate(ROUTES.MENU_EDIT)}
+          >
+            식단 수정
+          </button>
+        </div>
 
         <div className={s.mealList} aria-busy={dayMenu.isLoading}>
           {slots.map(({ mealType, dish }) => (
