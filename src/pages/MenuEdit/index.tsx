@@ -14,7 +14,6 @@ import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { useIssueShoppingList } from '@/services/shopping';
 import { getApiErrorStatus, showApiErrorPopup } from '@/api';
 import { ROUTES } from '@/constants';
-import { useConfirmedDays } from './useConfirmedDays';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
 import { useDayOfWeekParam } from '@/hooks/useDayOfWeekParam';
@@ -28,9 +27,6 @@ import {
 } from '@/utils/menu';
 import type { MealType } from '@/types';
 import * as s from '../Home/style.css';
-
-/** 일주일치를 다 확정하면 끝난다. */
-const TOTAL_DAYS = 7;
 
 const MenuEditPage = () => {
   const navigate = useNavigate();
@@ -49,7 +45,6 @@ const MenuEditPage = () => {
   const price = useWeeklyMenuPrice(currentMenu.data?.weeklyMenuId, dayOfWeek);
   const deleteDish = useDeleteDish();
   const rerollDish = useRerollDish();
-  const confirmed = useConfirmedDays(currentMenu.data?.weeklyMenuId);
   const issueReceipt = useIssueShoppingList();
   const prevDayRef = useRef<HTMLButtonElement>(null);
   const mealsRef = useRef<HTMLDivElement>(null);
@@ -82,29 +77,18 @@ const MenuEditPage = () => {
     );
   }
 
-  const isDayConfirmed = confirmed.has(dayOfWeek);
-  const allDone = confirmed.count >= TOTAL_DAYS;
-
   /**
-   * 7일을 다 확정하면 그 자리에서 영수증을 뽑고 장보기 화면으로 넘긴다.
-   * 발행에 실패해도 확정 자체는 이미 끝났으므로 화면은 넘긴다 —
-   * 장보기 화면이 빈 상태에서 다시 뽑을 수 있다.
+   * 수정을 끝낸다. 나가기 전에 영수증을 다시 뽑아 바뀐 메뉴의 재료를 반영한다.
+   * 발행에 실패해도 수정 자체는 이미 저장돼 있으므로 화면은 넘긴다 —
+   * 장보기 화면에서 다시 뽑을 수 있다.
    */
   const finish = () => {
     const weeklyMenuId = currentMenu.data?.weeklyMenuId;
     if (weeklyMenuId == null) {
-      navigate(ROUTES.SHOPPING);
+      goBack();
       return;
     }
-    issueReceipt.mutate(weeklyMenuId, {
-      onSettled: () => navigate(ROUTES.SHOPPING),
-    });
-  };
-
-  const confirmDay = () => {
-    confirmed.add(dayOfWeek);
-    if (confirmed.count + 1 >= TOTAL_DAYS) finish();
-    else shiftDay(1);
+    issueReceipt.mutate(weeklyMenuId, { onSettled: goBack });
   };
 
   return (
@@ -163,14 +147,10 @@ const MenuEditPage = () => {
 
       <BottomButton
         ref={confirmRef}
-        disabled={(isDayConfirmed && !allDone) || issueReceipt.isPending}
-        onClick={allDone ? finish : confirmDay}
+        disabled={issueReceipt.isPending}
+        onClick={finish}
       >
-        {issueReceipt.isPending
-          ? '장보기 목록 만드는 중…'
-          : allDone
-            ? '장보기 목록 보기'
-            : `확정하기(${confirmed.count}/${TOTAL_DAYS})`}
+        {issueReceipt.isPending ? '장보기 목록 반영 중…' : '수정 완료'}
       </BottomButton>
 
       {guide.open && (
@@ -191,8 +171,8 @@ const MenuEditPage = () => {
             },
             {
               target: confirmRef,
-              title: '수정된 식단 확정하기',
-              body: '하루씩 확정하면 7일까지 채울 수 있습니다.',
+              title: '수정 끝내기',
+              body: '수정을 마치면 바뀐 메뉴에 맞춰 장보기 목록도 다시 만들어 둡니다.',
               placement: 'above',
               filled: true,
             },
