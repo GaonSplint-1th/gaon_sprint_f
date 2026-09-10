@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Screen } from '@/components/layout';
 import {
@@ -11,38 +11,41 @@ import {
 import { useCurrentMenu, useDeleteDish, useRerollDish } from '@/services/menu';
 import { useDishImages } from '@/services/dish';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
+import { useIssueShoppingList } from '@/services/shopping';
 import { getApiErrorStatus, showApiErrorPopup } from '@/api';
 import { ROUTES } from '@/constants';
-import { useConfirmedDays } from './useConfirmedDays';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
-import { useGoBack } from '@/hooks/useGoBack';
+import { useDayOfWeekParam } from '@/hooks/useDayOfWeekParam';
 import MealActions from './MealActions';
 import {
   MEAL_LABELS,
   formatCookingTime,
   formatDayLabel,
   formatWon,
-  getTodayDayOfWeek,
-  shiftDayOfWeek,
   toMealSlots,
 } from '@/utils/menu';
-import type { DayOfWeek, MealType } from '@/types';
+import type { MealType } from '@/types';
 import * as s from '../Home/style.css';
-
-/** 일주일치를 다 확정하면 끝난다. */
-const TOTAL_DAYS = 7;
 
 const MenuEditPage = () => {
   const navigate = useNavigate();
-  const goBack = useGoBack();
-  const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek>(getTodayDayOfWeek());
+  const { dayOfWeek, shiftDay } = useDayOfWeekParam();
+
+  /*
+   * 뒤로가기는 기록 한 칸 뒤가 아니라 '보던 요일의 홈'으로 간다.
+   * 수요일을 고치다 나오면 홈도 수요일이어야 한다. 기록을 되감으면 들어올 때의
+   * 요일로 돌아가 버려서, 목적지를 직접 짚는다.
+   * replace 라서 이 화면은 기록에 남지 않는다 — 나갔다 다시 뒤로가면 홈 이전으로 간다.
+   */
+  const goBack = () =>
+    navigate(`${ROUTES.HOME}?day=${dayOfWeek}`, { replace: true });
 
   const currentMenu = useCurrentMenu();
   const price = useWeeklyMenuPrice(currentMenu.data?.weeklyMenuId, dayOfWeek);
   const deleteDish = useDeleteDish();
   const rerollDish = useRerollDish();
-  const confirmed = useConfirmedDays(currentMenu.data?.weeklyMenuId);
+  const issueReceipt = useIssueShoppingList();
   const prevDayRef = useRef<HTMLButtonElement>(null);
   const mealsRef = useRef<HTMLDivElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
@@ -74,13 +77,22 @@ const MenuEditPage = () => {
     );
   }
 
-  const isDayConfirmed = confirmed.has(dayOfWeek);
-  const allDone = confirmed.count >= TOTAL_DAYS;
-
-  const confirmDay = () => {
-    confirmed.add(dayOfWeek);
-    if (confirmed.count + 1 >= TOTAL_DAYS) navigate(ROUTES.HOME);
-    else setDayOfWeek((value) => shiftDayOfWeek(value, 1));
+  /**
+   * 수정을 끝낸다. 나가기 전에 영수증을 다시 뽑아 바뀐 메뉴의 재료를 반영한다.
+   *
+   * 실패하면 이 화면에 남는다. 끼니 수정은 누를 때마다 이미 저장돼 있으니 잃는 건
+   * 없지만, 조용히 나가 버리면 장보기 목록이 옛 내용인 걸 아무도 모른다.
+   */
+  const finish = () => {
+    const weeklyMenuId = currentMenu.data?.weeklyMenuId;
+    if (weeklyMenuId == null) {
+      goBack();
+      return;
+    }
+    issueReceipt.mutate(weeklyMenuId, {
+      onSuccess: goBack,
+      onError: showApiErrorPopup,
+    });
   };
 
   return (
@@ -93,8 +105,8 @@ const MenuEditPage = () => {
       <DateNavigator
         ref={prevDayRef}
         label={formatDayLabel(dayOfWeek)}
-        onPrev={() => setDayOfWeek((value) => shiftDayOfWeek(value, -1))}
-        onNext={() => setDayOfWeek((value) => shiftDayOfWeek(value, 1))}
+        onPrev={() => shiftDay(-1)}
+        onNext={() => shiftDay(1)}
       />
       <CostBar
         cost={price.data?.totalCost}
@@ -139,10 +151,10 @@ const MenuEditPage = () => {
 
       <BottomButton
         ref={confirmRef}
-        disabled={isDayConfirmed && !allDone}
-        onClick={allDone ? () => navigate(ROUTES.HOME) : confirmDay}
+        disabled={issueReceipt.isPending}
+        onClick={finish}
       >
-        {allDone ? '완료' : `확정하기(${confirmed.count}/${TOTAL_DAYS})`}
+        {issueReceipt.isPending ? '장보기 목록 반영 중…' : '수정 완료'}
       </BottomButton>
 
       {guide.open && (
@@ -163,8 +175,8 @@ const MenuEditPage = () => {
             },
             {
               target: confirmRef,
-              title: '수정된 식단 확정하기',
-              body: '하루씩 확정하면 7일까지 채울 수 있습니다.',
+              title: '수정 끝내기',
+              body: '수정을 마치면 바뀐 메뉴에 맞춰 장보기 목록도 다시 만들어 둡니다.',
               placement: 'above',
               filled: true,
             },

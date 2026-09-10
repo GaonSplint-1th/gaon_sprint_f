@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Screen } from '@/components/layout';
 import {
@@ -12,21 +12,21 @@ import { useDishImages } from '@/services/dish';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorStatus } from '@/api';
 import { ROUTES } from '@/constants';
+import { useDayOfWeekParam } from '@/hooks/useDayOfWeekParam';
 import {
   MEAL_LABELS,
   formatCookingTime,
   formatDayLabel,
   formatWon,
-  getTodayDayOfWeek,
-  shiftDayOfWeek,
   toMealSlots,
 } from '@/utils/menu';
-import type { DayOfWeek, MealType } from '@/types';
+import type { MealType } from '@/types';
+import ReceiptEntry from './ReceiptEntry';
 import * as s from './style.css';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek>(getTodayDayOfWeek());
+  const { dayOfWeek, shiftDay } = useDayOfWeekParam();
 
   const dayMenu = useDayMenu(dayOfWeek);
   const price = useWeeklyMenuPrice(dayMenu.data?.weeklyMenuId, dayOfWeek);
@@ -58,8 +58,8 @@ const HomePage = () => {
 
       <DateNavigator
         label={formatDayLabel(dayOfWeek)}
-        onPrev={() => setDayOfWeek((day) => shiftDayOfWeek(day, -1))}
-        onNext={() => setDayOfWeek((day) => shiftDayOfWeek(day, 1))}
+        onPrev={() => shiftDay(-1)}
+        onNext={() => shiftDay(1)}
       />
       <CostBar
         cost={price.data?.totalCost}
@@ -68,10 +68,21 @@ const HomePage = () => {
         isRefreshing={price.isFetching}
       />
 
+      <ReceiptEntry />
+
       <section className={s.mealSection} aria-labelledby="meal-section-title">
-        <h2 id="meal-section-title" className={s.sectionTitle}>
-          식사별 메뉴
-        </h2>
+        <div className={s.sectionHead}>
+          <h2 id="meal-section-title" className={s.sectionTitle}>
+            식사별 메뉴
+          </h2>
+          <button
+            type="button"
+            className={s.editMenuButton}
+            onClick={() => navigate(`${ROUTES.MENU_EDIT}?day=${dayOfWeek}`)}
+          >
+            식단 수정
+          </button>
+        </div>
 
         <div className={s.mealList} aria-busy={dayMenu.isLoading}>
           {slots.map(({ mealType, dish }) => (

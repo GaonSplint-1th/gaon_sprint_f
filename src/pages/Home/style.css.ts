@@ -1,5 +1,5 @@
 import { style } from '@vanilla-extract/css';
-import { flex, font, layout, spacing, theme } from '@/styles';
+import { elevation, flex, font, layout, spacing, theme } from '@/styles';
 import { skeletonPiece } from '@/styles/skeleton.css';
 
 export const screen = style({
@@ -21,6 +21,8 @@ export const backButton = style({
   textAlign: 'left',
 });
 export const mealSection = style({ marginTop: '24px' });
+/** 섹션 제목 줄. 오른쪽 끝에 수정 진입을 얹는다. */
+export const sectionHead = style([flex.BETWEEN, { gap: spacing.sm }]);
 export const sectionTitle = style([
   font.labelMedium,
   { color: theme.textPrimary },
@@ -314,3 +316,81 @@ export const changeAction = style([
     },
   },
 ]);
+
+/* ── 장보기 영수증 진입 카드 (홈 → /shopping) ─────────────── */
+
+/** 추천 카드와 같은 r16 · surface · elevation 1. 목록 위에 얹는다. */
+export const receiptCard = style([
+  flex.VERTICAL,
+  {
+    gap: '12px',
+    width: '100%',
+    marginTop: spacing.md,
+    padding: '14px',
+    borderRadius: '16px',
+    background: theme.surface,
+    boxShadow: elevation[1],
+    textAlign: 'left',
+  },
+]);
+/** 왼쪽 아이콘 타일. 영수증이라는 걸 한 번에 알리는 자리다. */
+export const receiptTile = style([
+  flex.CENTER,
+  {
+    flex: 'none',
+    width: '44px',
+    height: '44px',
+    borderRadius: '8px',
+    background: theme.neutral[50],
+    color: theme.primaryScale[600],
+  },
+]);
+export const receiptBody = style({ display: 'block', flex: 1, minWidth: 0 });
+export const receiptTitle = style({
+  display: 'block',
+  fontSize: '16px',
+  lineHeight: '140%',
+  fontWeight: 600,
+  color: theme.textPrimary,
+});
+export const receiptSub = style({
+  display: 'block',
+  marginTop: '3px',
+  fontSize: '12px',
+  color: theme.textSecondary,
+  fontVariantNumeric: 'tabular-nums',
+});
+/** 안 사기로 한 개수만 색을 준다 — 이 화면에서 되짚어 볼 유일한 숫자다. */
+export const receiptSkipped = style({ color: theme.error });
+export const receiptTrack = style({
+  display: 'block',
+  marginTop: spacing.sm,
+  height: '5px',
+  borderRadius: '999px',
+  background: theme.neutral[50],
+  overflow: 'hidden',
+});
+export const receiptFill = style({
+  display: 'block',
+  height: '100%',
+  borderRadius: '999px',
+  background: theme.primaryScale[600],
+  transition: 'width 0.18s ease',
+  '@media': {
+    '(prefers-reduced-motion: reduce)': { transition: 'none' },
+  },
+});
+export const receiptGo = style({ flex: 'none', color: theme.neutral[400] });
+
+/**
+ * 식단 수정 진입. 카드에 있는 '레시피보기' 와 같은 말투(파란 링크)로 둔다 —
+ * 홈에 큰 버튼을 하나 더 세우면 화면이 카드 더미가 된다.
+ */
+export const editMenuButton = style({
+  flex: 'none',
+  padding: '4px 2px',
+  color: theme.link,
+  fontSize: '14px',
+  lineHeight: '20px',
+  fontWeight: 500,
+});

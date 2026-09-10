@@ -34,6 +34,19 @@ export const toDayOfWeek = (date: Date): DayOfWeek => {
 /** 오늘 요일 (1=월 ... 7=일). */
 export const getTodayDayOfWeek = (): DayOfWeek => toDayOfWeek(new Date());
 
+/**
+ * 쿼리스트링처럼 바깥에서 들어온 요일 값을 검증한다.
+ * 1~7 이 아니면 undefined — 부르는 쪽이 기본값을 정한다.
+ */
+export const parseDayOfWeek = (
+  value: string | null | undefined,
+): DayOfWeek | undefined => {
+  const day = Number(value);
+  return Number.isInteger(day) && day >= 1 && day <= 7
+    ? (day as DayOfWeek)
+    : undefined;
+};
+
 /** 이번 주(월요일 시작)에서 해당 요일의 실제 날짜를 구한다. */
 export const dateOfDayOfWeek = (
   dayOfWeek: DayOfWeek,

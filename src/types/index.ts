@@ -81,11 +81,12 @@ export type {
 
 /* 장보기 */
 export type {
+  ShoppingListItemStatus,
   ShoppingListItem,
   ShoppingList,
   ShoppingListItemInput,
   ShoppingListAddRequest,
-  ShoppingListItemCheckRequest,
+  ShoppingListItemStatusRequest,
 } from './shopping.interface';
 
 /* 에러 팝업 */

@@ -1,7 +1,7 @@
 export {
   getShoppingList,
   addShoppingListItems,
-  checkShoppingListItem,
+  changeShoppingListItemStatus,
   removeShoppingListItem,
 } from './shopping.api';
 
@@ -9,6 +9,7 @@ export { useShoppingList } from './shopping.query';
 
 export {
   useAddShoppingListItems,
-  useCheckShoppingListItem,
+  useChangeShoppingListItemStatus,
+  useIssueShoppingList,
   useRemoveShoppingListItem,
 } from './shopping.mutation';
