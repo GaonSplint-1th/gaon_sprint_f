@@ -283,14 +283,19 @@ const ShoppingPage = () => {
 
       <div className={s.ctaGradient} />
       <div className={s.ctaDock}>
+        {/*
+          다 담지 않아도 나갈 수 있다. 장은 한 자리에서 끝나지 않는다 —
+          목록만 확인하고 나중에 마트에서 이어 담는 게 보통이다.
+          돌아오는 길은 홈의 영수증 카드가 맡는다.
+        */}
         <button
           ref={ctaRef}
           type="button"
           className={s.cta}
-          disabled={!allChecked || isBusy}
+          disabled={isBusy}
           onClick={() => navigate(ROUTES.HOME)}
         >
-          {allChecked ? '장보기 완료' : '담는 중'}
+          {allChecked ? '장보기 완료' : '나중에 이어서 하기'}
           <span className={s.ctaCount}>
             {checked.length}/{buying.length}
           </span>
@@ -311,7 +316,7 @@ const ShoppingPage = () => {
             {
               target: ctaRef,
               title: '담을 때마다 체크',
-              body: '장바구니에 담은 재료를 체크하고, 집에 있어 안 살 재료는 안 살래요를 누르면 합계에서 빠집니다.',
+              body: '장바구니에 담은 재료를 체크하고, 집에 있어 안 살 재료는 안 살래요를 누르면 합계에서 빠집니다. 다 담지 않고 나가도 홈에서 다시 이어 담을 수 있어요.',
               placement: 'above',
               filled: true,
             },
