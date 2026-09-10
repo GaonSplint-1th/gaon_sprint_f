@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Screen } from '@/components/layout';
 import {
@@ -12,22 +12,21 @@ import { useDishImages } from '@/services/dish';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
 import { getApiErrorStatus } from '@/api';
 import { ROUTES } from '@/constants';
+import { useDayOfWeekParam } from '@/hooks/useDayOfWeekParam';
 import {
   MEAL_LABELS,
   formatCookingTime,
   formatDayLabel,
   formatWon,
-  getTodayDayOfWeek,
-  shiftDayOfWeek,
   toMealSlots,
 } from '@/utils/menu';
-import type { DayOfWeek, MealType } from '@/types';
+import type { MealType } from '@/types';
 import ReceiptEntry from './ReceiptEntry';
 import * as s from './style.css';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek>(getTodayDayOfWeek());
+  const { dayOfWeek, shiftDay } = useDayOfWeekParam();
 
   const dayMenu = useDayMenu(dayOfWeek);
   const price = useWeeklyMenuPrice(dayMenu.data?.weeklyMenuId, dayOfWeek);
@@ -59,8 +58,8 @@ const HomePage = () => {
 
       <DateNavigator
         label={formatDayLabel(dayOfWeek)}
-        onPrev={() => setDayOfWeek((day) => shiftDayOfWeek(day, -1))}
-        onNext={() => setDayOfWeek((day) => shiftDayOfWeek(day, 1))}
+        onPrev={() => shiftDay(-1)}
+        onNext={() => shiftDay(1)}
       />
       <CostBar
         cost={price.data?.totalCost}

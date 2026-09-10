@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Screen } from '@/components/layout';
 import {
   BottomButton,
@@ -17,19 +17,16 @@ import { ROUTES } from '@/constants';
 import { useConfirmedDays } from './useConfirmedDays';
 import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
-import { useGoBack } from '@/hooks/useGoBack';
+import { useDayOfWeekParam } from '@/hooks/useDayOfWeekParam';
 import MealActions from './MealActions';
 import {
   MEAL_LABELS,
   formatCookingTime,
   formatDayLabel,
   formatWon,
-  getTodayDayOfWeek,
-  parseDayOfWeek,
-  shiftDayOfWeek,
   toMealSlots,
 } from '@/utils/menu';
-import type { DayOfWeek, MealType } from '@/types';
+import type { MealType } from '@/types';
 import * as s from '../Home/style.css';
 
 /** 일주일치를 다 확정하면 끝난다. */
@@ -37,31 +34,16 @@ const TOTAL_DAYS = 7;
 
 const MenuEditPage = () => {
   const navigate = useNavigate();
-  const goBack = useGoBack();
-  /*
-   * 어느 요일을 보다 들어왔는지는 주소가 들고 있다 (`/edit?day=3`).
-   * 홈에서 화요일을 보다 수정을 누르면 화요일이 첫 화면이어야 한다.
-   * 값이 없거나 이상하면 오늘로 연다.
-   */
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek>(
-    () => parseDayOfWeek(searchParams.get('day')) ?? getTodayDayOfWeek(),
-  );
+  const { dayOfWeek, shiftDay } = useDayOfWeekParam();
 
   /*
-   * 요일이 바뀌면 주소를 맞춰 둔다. 새로고침해도 같은 요일로 돌아온다.
-   * replace 로 둔다 — 날짜를 넘길 때마다 뒤로가기가 한 칸씩 쌓이면 안 된다.
+   * 뒤로가기는 기록 한 칸 뒤가 아니라 '보던 요일의 홈'으로 간다.
+   * 수요일을 고치다 나오면 홈도 수요일이어야 한다. 기록을 되감으면 들어올 때의
+   * 요일로 돌아가 버려서, 목적지를 직접 짚는다.
+   * replace 라서 이 화면은 기록에 남지 않는다 — 나갔다 다시 뒤로가면 홈 이전으로 간다.
    */
-  useEffect(() => {
-    setSearchParams({ day: String(dayOfWeek) }, { replace: true });
-  }, [dayOfWeek, setSearchParams]);
-
-  /*
-   * 이동은 반드시 직전 값에서 센다. 화살표를 연달아 누르면 두 번 다 같은
-   * 렌더의 dayOfWeek 를 보게 되어 하루밖에 안 넘어간다.
-   */
-  const shiftDay = (delta: number) =>
-    setDayOfWeek((current) => shiftDayOfWeek(current, delta));
+  const goBack = () =>
+    navigate(`${ROUTES.HOME}?day=${dayOfWeek}`, { replace: true });
 
   const currentMenu = useCurrentMenu();
   const price = useWeeklyMenuPrice(currentMenu.data?.weeklyMenuId, dayOfWeek);
