@@ -22,6 +22,7 @@ import {
   toMealSlots,
 } from '@/utils/menu';
 import type { DayOfWeek, MealType } from '@/types';
+import ReceiptEntry from './ReceiptEntry';
 import * as s from './style.css';
 
 const HomePage = () => {
@@ -67,6 +68,8 @@ const HomePage = () => {
         onRefresh={() => void price.refetch()}
         isRefreshing={price.isFetching}
       />
+
+      <ReceiptEntry />
 
       <section className={s.mealSection} aria-labelledby="meal-section-title">
         <h2 id="meal-section-title" className={s.sectionTitle}>

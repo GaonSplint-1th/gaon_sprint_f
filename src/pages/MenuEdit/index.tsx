@@ -11,6 +11,7 @@ import {
 import { useCurrentMenu, useDeleteDish, useRerollDish } from '@/services/menu';
 import { useDishImages } from '@/services/dish';
 import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
+import { useIssueShoppingList } from '@/services/shopping';
 import { getApiErrorStatus, showApiErrorPopup } from '@/api';
 import { ROUTES } from '@/constants';
 import { useConfirmedDays } from './useConfirmedDays';
@@ -43,6 +44,7 @@ const MenuEditPage = () => {
   const deleteDish = useDeleteDish();
   const rerollDish = useRerollDish();
   const confirmed = useConfirmedDays(currentMenu.data?.weeklyMenuId);
+  const issueReceipt = useIssueShoppingList();
   const prevDayRef = useRef<HTMLButtonElement>(null);
   const mealsRef = useRef<HTMLDivElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
@@ -77,9 +79,25 @@ const MenuEditPage = () => {
   const isDayConfirmed = confirmed.has(dayOfWeek);
   const allDone = confirmed.count >= TOTAL_DAYS;
 
+  /**
+   * 7일을 다 확정하면 그 자리에서 영수증을 뽑고 장보기 화면으로 넘긴다.
+   * 발행에 실패해도 확정 자체는 이미 끝났으므로 화면은 넘긴다 —
+   * 장보기 화면이 빈 상태에서 다시 뽑을 수 있다.
+   */
+  const finish = () => {
+    const weeklyMenuId = currentMenu.data?.weeklyMenuId;
+    if (weeklyMenuId == null) {
+      navigate(ROUTES.SHOPPING);
+      return;
+    }
+    issueReceipt.mutate(weeklyMenuId, {
+      onSettled: () => navigate(ROUTES.SHOPPING),
+    });
+  };
+
   const confirmDay = () => {
     confirmed.add(dayOfWeek);
-    if (confirmed.count + 1 >= TOTAL_DAYS) navigate(ROUTES.HOME);
+    if (confirmed.count + 1 >= TOTAL_DAYS) finish();
     else setDayOfWeek((value) => shiftDayOfWeek(value, 1));
   };
 
@@ -139,10 +157,14 @@ const MenuEditPage = () => {
 
       <BottomButton
         ref={confirmRef}
-        disabled={isDayConfirmed && !allDone}
-        onClick={allDone ? () => navigate(ROUTES.HOME) : confirmDay}
+        disabled={(isDayConfirmed && !allDone) || issueReceipt.isPending}
+        onClick={allDone ? finish : confirmDay}
       >
-        {allDone ? '완료' : `확정하기(${confirmed.count}/${TOTAL_DAYS})`}
+        {issueReceipt.isPending
+          ? '장보기 목록 만드는 중…'
+          : allDone
+            ? '장보기 목록 보기'
+            : `확정하기(${confirmed.count}/${TOTAL_DAYS})`}
       </BottomButton>
 
       {guide.open && (

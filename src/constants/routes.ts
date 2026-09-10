@@ -5,4 +5,5 @@ export const ROUTES = {
   HOME: '/',
   INGREDIENT_REGISTER: '/ingredient-register',
   RECIPE: '/recipe/:id',
+  SHOPPING: '/shopping',
 } as const;
