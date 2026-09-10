@@ -1,33 +1,22 @@
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Screen } from '@/components/layout';
-import {
-  BottomButton,
-  CostBar,
-  DateNavigator,
-  MealCard,
-  PageHeader,
-} from '@/components/common';
-import { useCurrentMenu, useDeleteDish, useRerollDish } from '@/services/menu';
-import { useDishImages } from '@/services/dish';
-import { useWeeklyMenuPrice } from '@/services/weeklyMenu';
+import { BottomButton, DayMealEditor, PageHeader } from '@/components/common';
+import OnboardingGuide from '@/components/common/OnboardingGuide';
+import { useCurrentMenu } from '@/services/menu';
 import { useIssueShoppingList } from '@/services/shopping';
 import { getApiErrorStatus, showApiErrorPopup } from '@/api';
 import { ROUTES } from '@/constants';
-import OnboardingGuide from '@/components/common/OnboardingGuide';
 import { useFirstVisitGuide } from '@/hooks/useFirstVisitGuide';
 import { useDayOfWeekParam } from '@/hooks/useDayOfWeekParam';
-import MealActions from './MealActions';
-import {
-  MEAL_LABELS,
-  formatCookingTime,
-  formatDayLabel,
-  formatWon,
-  toMealSlots,
-} from '@/utils/menu';
-import type { MealType } from '@/types';
 import * as s from '../Home/style.css';
 
+/**
+ * 식단 수정 — 이미 쓰고 있는 식단에서 한두 끼를 고치러 들어오는 화면.
+ *
+ * 확정 절차가 없다. 고칠 만큼 고치고 나가면 그만이다.
+ * 일주일을 처음부터 훑는 흐름은 식단 작성(MenuPlan)이 맡는다.
+ */
 const MenuEditPage = () => {
   const navigate = useNavigate();
   const { dayOfWeek, shiftDay } = useDayOfWeekParam();
@@ -42,9 +31,6 @@ const MenuEditPage = () => {
     navigate(`${ROUTES.HOME}?day=${dayOfWeek}`, { replace: true });
 
   const currentMenu = useCurrentMenu();
-  const price = useWeeklyMenuPrice(currentMenu.data?.weeklyMenuId, dayOfWeek);
-  const deleteDish = useDeleteDish();
-  const rerollDish = useRerollDish();
   const issueReceipt = useIssueShoppingList();
   const prevDayRef = useRef<HTMLButtonElement>(null);
   const mealsRef = useRef<HTMLDivElement>(null);
@@ -52,19 +38,6 @@ const MenuEditPage = () => {
   const guide = useFirstVisitGuide('menu-edit');
 
   const hasNoMenu = getApiErrorStatus(currentMenu.error) === 404;
-
-  const day = currentMenu.data?.days.find((it) => it.dayOfWeek === dayOfWeek);
-  const slots = useMemo(() => toMealSlots(day?.dishes), [day?.dishes]);
-
-  // 식단 응답에는 요리 이름만 있어 대표 이미지는 요리 상세에서 따로 받아 온다.
-  const dishImages = useDishImages(slots.map(({ dish }) => dish?.dishId));
-
-  // 새로고침은 후보가 떨어지면 409 로 실패한다. 백엔드 메시지를 그대로 보여 준다.
-  const onError = showApiErrorPopup;
-  const isEditing = deleteDish.isPending || rerollDish.isPending;
-
-  const costOf = (mealType: MealType): number | null =>
-    price.data?.items.find((item) => item.mealType === mealType)?.cost ?? null;
 
   if (hasNoMenu) {
     return (
@@ -102,52 +75,15 @@ const MenuEditPage = () => {
       <h2 className={s.planTitle}>{currentMenu.data?.name ?? '식단'}</h2>
       <p className={s.planDescription}>스크롤하여 메뉴를 변경할 수 있습니다.</p>
 
-      <DateNavigator
-        ref={prevDayRef}
-        label={formatDayLabel(dayOfWeek)}
-        onPrev={() => shiftDay(-1)}
-        onNext={() => shiftDay(1)}
+      <DayMealEditor
+        weeklyMenuId={currentMenu.data?.weeklyMenuId}
+        days={currentMenu.data?.days}
+        isLoading={currentMenu.isLoading}
+        dayOfWeek={dayOfWeek}
+        onShiftDay={shiftDay}
+        prevDayRef={prevDayRef}
+        mealsRef={mealsRef}
       />
-      <CostBar
-        cost={price.data?.totalCost}
-        isLoading={price.isLoading}
-        onRefresh={() => void price.refetch()}
-        isRefreshing={price.isFetching}
-      />
-
-      <div className={s.editScroll} ref={mealsRef}>
-        <div className={s.editMeals} aria-busy={currentMenu.isLoading}>
-          {slots.map(({ mealType, dish }) => (
-            <div key={mealType} className={s.mealRow}>
-              <MealCard
-                time={dish ? MEAL_LABELS[mealType] : '미정'}
-                name={dish?.name ?? '메뉴명'}
-                detail={
-                  dish
-                    ? (formatCookingTime(dish.cookingTimeMinutes) ??
-                      formatWon(costOf(mealType)))
-                    : formatWon(null)
-                }
-                imageUrl={dish ? dishImages.images[dish.dishId] : null}
-                isImageLoading={Boolean(dish) && dishImages.isLoading}
-                onOpenRecipe={
-                  dish ? () => navigate(`/recipe/${dish.dishId}`) : undefined
-                }
-              />
-              <MealActions
-                mealLabel={MEAL_LABELS[mealType]}
-                disabled={!dish || isEditing}
-                onDelete={() =>
-                  deleteDish.mutate({ dayOfWeek, mealType }, { onError })
-                }
-                onChange={() =>
-                  rerollDish.mutate({ dayOfWeek, mealType }, { onError })
-                }
-              />
-            </div>
-          ))}
-        </div>
-      </div>
 
       <BottomButton
         ref={confirmRef}

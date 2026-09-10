@@ -219,7 +219,7 @@ const DietRecommendPage = () => {
     createCurrentMenu.mutate(
       { weeklyMenuId: selectedId },
       {
-        onSuccess: () => navigate(ROUTES.MENU_EDIT),
+        onSuccess: () => navigate(ROUTES.MENU_PLAN),
         onError: showApiErrorPopup,
       },
     );
