@@ -1,5 +1,6 @@
 import { useCallback, useState, type RefObject } from 'react';
 import { HideImage } from '@/components/icons';
+import { toImageUrl } from '@/utils/image';
 import type { Ingredient } from '@/types/recipe.interface';
 import IngredientPopup from '../IngredientPopup';
 import * as s from './style.css';
@@ -28,7 +29,9 @@ const RecipeCard = ({
     setIsImageLoadFailed(false);
   }
 
-  const showImage = Boolean(imageUrl) && !isImageLoadFailed;
+  // DB 는 상대경로로 주므로 이미지 호스트를 붙여 실제로 받아올 주소로 만든다.
+  const url = toImageUrl(imageUrl);
+  const showImage = Boolean(url) && !isImageLoadFailed;
 
   const closeIngredientPopup = useCallback(
     () => setIsIngredientPopupOpen(false),
@@ -41,7 +44,7 @@ const RecipeCard = ({
         {showImage ? (
           <img
             className={s.image}
-            src={imageUrl}
+            src={url as string}
             alt={name}
             onError={() => setIsImageLoadFailed(true)}
           />

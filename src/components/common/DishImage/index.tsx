@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { HideImage } from '@/components/icons';
+import { toImageUrl } from '@/utils/image';
 import * as s from './style.css';
 
 interface DishImageProps {
@@ -27,8 +28,11 @@ const DishImage = ({
 }: DishImageProps) => {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
+  // DB 는 상대경로로 주므로 이미지 호스트를 붙여 실제로 받아올 주소로 만든다.
+  const url = toImageUrl(src);
+
   // src 가 바뀌면 새 이미지에 다시 로드 기회를 준다 (effect 없이 렌더 중 판단).
-  const showImage = Boolean(src) && src !== failedUrl;
+  const showImage = Boolean(url) && url !== failedUrl;
   const box = className ? `${s.box} ${className}` : s.box;
 
   if (isLoading) return <div className={box} aria-hidden />;
@@ -38,11 +42,11 @@ const DishImage = ({
       {showImage ? (
         <img
           className={s.image}
-          src={src as string}
+          src={url as string}
           alt={alt}
           loading="lazy"
           decoding="async"
-          onError={() => setFailedUrl(src as string)}
+          onError={() => setFailedUrl(url)}
         />
       ) : (
         <HideImage size={iconSize} />
