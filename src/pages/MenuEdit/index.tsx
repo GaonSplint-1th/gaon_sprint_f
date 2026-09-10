@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Screen } from '@/components/layout';
 import {
   BottomButton,
@@ -25,6 +25,7 @@ import {
   formatDayLabel,
   formatWon,
   getTodayDayOfWeek,
+  parseDayOfWeek,
   shiftDayOfWeek,
   toMealSlots,
 } from '@/utils/menu';
@@ -37,7 +38,30 @@ const TOTAL_DAYS = 7;
 const MenuEditPage = () => {
   const navigate = useNavigate();
   const goBack = useGoBack();
-  const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek>(getTodayDayOfWeek());
+  /*
+   * 어느 요일을 보다 들어왔는지는 주소가 들고 있다 (`/edit?day=3`).
+   * 홈에서 화요일을 보다 수정을 누르면 화요일이 첫 화면이어야 한다.
+   * 값이 없거나 이상하면 오늘로 연다.
+   */
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek>(
+    () => parseDayOfWeek(searchParams.get('day')) ?? getTodayDayOfWeek(),
+  );
+
+  /*
+   * 요일이 바뀌면 주소를 맞춰 둔다. 새로고침해도 같은 요일로 돌아온다.
+   * replace 로 둔다 — 날짜를 넘길 때마다 뒤로가기가 한 칸씩 쌓이면 안 된다.
+   */
+  useEffect(() => {
+    setSearchParams({ day: String(dayOfWeek) }, { replace: true });
+  }, [dayOfWeek, setSearchParams]);
+
+  /*
+   * 이동은 반드시 직전 값에서 센다. 화살표를 연달아 누르면 두 번 다 같은
+   * 렌더의 dayOfWeek 를 보게 되어 하루밖에 안 넘어간다.
+   */
+  const shiftDay = (delta: number) =>
+    setDayOfWeek((current) => shiftDayOfWeek(current, delta));
 
   const currentMenu = useCurrentMenu();
   const price = useWeeklyMenuPrice(currentMenu.data?.weeklyMenuId, dayOfWeek);
@@ -98,7 +122,7 @@ const MenuEditPage = () => {
   const confirmDay = () => {
     confirmed.add(dayOfWeek);
     if (confirmed.count + 1 >= TOTAL_DAYS) finish();
-    else setDayOfWeek((value) => shiftDayOfWeek(value, 1));
+    else shiftDay(1);
   };
 
   return (
@@ -111,8 +135,8 @@ const MenuEditPage = () => {
       <DateNavigator
         ref={prevDayRef}
         label={formatDayLabel(dayOfWeek)}
-        onPrev={() => setDayOfWeek((value) => shiftDayOfWeek(value, -1))}
-        onNext={() => setDayOfWeek((value) => shiftDayOfWeek(value, 1))}
+        onPrev={() => shiftDay(-1)}
+        onNext={() => shiftDay(1)}
       />
       <CostBar
         cost={price.data?.totalCost}

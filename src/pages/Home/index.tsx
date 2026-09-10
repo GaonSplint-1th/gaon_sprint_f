@@ -79,7 +79,7 @@ const HomePage = () => {
           <button
             type="button"
             className={s.editMenuButton}
-            onClick={() => navigate(ROUTES.MENU_EDIT)}
+            onClick={() => navigate(`${ROUTES.MENU_EDIT}?day=${dayOfWeek}`)}
           >
             식단 수정
           </button>
