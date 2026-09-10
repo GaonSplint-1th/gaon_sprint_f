@@ -1,4 +1,5 @@
-import * as s from '../Home/style.css';
+// 식단 화면 스타일이 아직 Home/style.css 에 모여 있다. 옮기는 건 별건으로 둔다.
+import * as s from '@/pages/Home/style.css';
 
 interface MealActionsProps {
   /** 스크린리더용 이름에 쓰는 끼니 라벨. 예) "아침" */
