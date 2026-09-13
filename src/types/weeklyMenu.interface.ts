@@ -11,8 +11,13 @@ export interface WeeklyMenuSummary {
   ownerUserId: string | null;
   sourceWeeklyMenuId: number | null;
   /**
-   * 예상 식비(원). 보유 식재료를 차감한 금액으로,
-   * 가격 단건 조회(.../price)의 totalCost 와 같은 값이다.
+   * 일주일 장보기 예상액(원). 보유 식재료를 차감한 금액이고, 포장 단위로만 살 수 있는
+   * 재료는 올려서 담은 **실제로 낼 돈**이다.
+   *
+   * 가격 단건 조회(.../price)의 `totalCost` 와는 뜻이 달라 값도 다르다 — 그쪽은 재료를
+   * 쓰는 만큼만 센 "이 음식이 얼마어치인가"다. 한 주 식단 기준 24,460원 대 64,053원처럼
+   * 몇 배까지 벌어진다. 이 카드와 같은 값이 필요하면 `shoppingList.toBuyCost` 를 쓴다.
+   *
    * 끼니가 비었거나 가격을 아는 재료가 없으면 0.
    */
   estimatedCost: number | null;

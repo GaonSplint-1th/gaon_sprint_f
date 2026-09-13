@@ -100,7 +100,8 @@ const DayMealEditor = ({
               />
               <MealActions
                 mealLabel={MEAL_LABELS[mealType]}
-                disabled={!dish || isEditing}
+                isBusy={isEditing}
+                hasDish={Boolean(dish)}
                 onDelete={() =>
                   deleteDish.mutate({ dayOfWeek, mealType }, { onError })
                 }
